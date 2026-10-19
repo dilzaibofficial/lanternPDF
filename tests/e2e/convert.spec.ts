@@ -2,6 +2,7 @@ import type { Page } from "@playwright/test";
 import { renderPdfPage } from "../unit/helpers/images";
 import { pageTexts } from "../unit/helpers/pdf";
 import { csv, docx, docxParagraphs, makeReport, makeScan, makeTable, nonEmpty, odt, sheetsOf, textOf, unzip, withMarker } from "../unit/helpers/documents";
+import { makeWordDocument, makeWorkbook } from "../unit/helpers/officeDocs";
 import { addFiles, expect, test } from "./fixtures";
 import { downloadResult } from "./helpers";
 
@@ -194,6 +195,7 @@ test.describe("PDF to PowerPoint", () => {
 test.describe("Word, Excel and PowerPoint to PDF", () => {
   test("converts a document on the server and checks the PDF before offering it", async ({ page }) => {
     await page.goto("/tools/word-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [{ name: "Quarterly report.docx", bytes: docx(), mimeType: DOCX }]);
     await expect(page.getByTestId("convert-summary")).toContainText("1 file");
     await page.getByTestId("convert-button").click();
@@ -207,6 +209,7 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
 
   test("converts several files at once into a ZIP, each with its own name", async ({ page }) => {
     await page.goto("/tools/word-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [
       { name: "a.docx", bytes: docx(), mimeType: DOCX },
       { name: "b.odt", bytes: odt(), mimeType: "application/vnd.oasis.opendocument.text" },
@@ -219,8 +222,9 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
     expect(Object.keys(unzip(zip.bytes)).sort()).toEqual(["a.pdf", "b.pdf"]);
   });
 
-  test("spreadsheets and presentations go through the same server path", async ({ page }) => {
+  test("spreadsheets go through the same server path", async ({ page }) => {
     await page.goto("/tools/excel-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [{ name: "numbers.csv", bytes: csv(), mimeType: "text/csv" }]);
     await page.getByTestId("convert-button").click();
     await expect(page.getByRole("heading", { name: "Your PDF is ready" })).toBeVisible();
@@ -229,6 +233,7 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
 
   test("shows why a document could not be converted, without leaking server details", async ({ page }) => {
     await page.goto("/tools/word-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [
       { name: "good.docx", bytes: docx(), mimeType: DOCX },
       { name: "broken.docx", bytes: docx("FAKE:FAIL"), mimeType: DOCX },
@@ -246,6 +251,7 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
 
   test("when every file fails, nothing is offered for download", async ({ page }) => {
     await page.goto("/tools/word-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [{ name: "broken.docx", bytes: docx("FAKE:FAIL"), mimeType: DOCX }]);
     await page.getByTestId("convert-button").click();
     await expect(page.getByRole("heading", { name: "The file could not be converted" })).toBeVisible();
@@ -255,6 +261,7 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
 
   test("a conversion that returns a damaged PDF is discarded", async ({ page }) => {
     await page.goto("/tools/word-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [{ name: "odd.docx", bytes: docx("FAKE:GARBAGE"), mimeType: DOCX }]);
     await page.getByTestId("convert-button").click();
     await expect(page.getByRole("heading", { name: "The file could not be converted" })).toBeVisible();
@@ -276,6 +283,7 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
 
   test("applies the server's upload limit in the browser", async ({ page }) => {
     await page.goto("/tools/word-to-pdf");
+    await page.getByTestId("mode-server").check();
     await addFiles(page, [{ name: "huge.docx", bytes: docx("x".repeat(3 * 1024 * 1024)), mimeType: DOCX }]);
     await expect(page.getByText(/over the 2\.0 MB limit/)).toBeVisible();
     await expect(page.getByTestId("file-row")).toHaveCount(0);
@@ -283,7 +291,7 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
 
   test("explains what is needed when there is no server, and offers no way to upload", async ({ page }) => {
     await page.route("**/api/capabilities", (route) => route.abort());
-    await page.goto("/tools/word-to-pdf");
+    await page.goto("/tools/powerpoint-to-pdf");
     await expect(page.getByTestId("server-notice")).toContainText("This needs the optional server");
     await expect(page.getByRole("link", { name: "How to run the server" })).toBeVisible();
     await expect(page.getByTestId("file-input")).toHaveCount(0);
@@ -302,6 +310,62 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
   test("the self-hosting page the notices point to exists", async ({ page }) => {
     await page.goto("/self-hosting");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+  test("Word to PDF converts on this device, with no upload and no server needed", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/api/")) requests.push(request.method() + " " + request.url());
+    });
+    await page.route("**/api/capabilities", (route) => route.abort());
+    await page.goto("/tools/word-to-pdf");
+    await expect(page.getByTestId("mode-device")).toBeChecked();
+    await expect(page.getByTestId("mode-server")).toBeDisabled();
+    await addFiles(page, [{ name: "Annual summary.docx", bytes: await makeWordDocument(), mimeType: DOCX }]);
+    await page.getByTestId("convert-button").click();
+    await expect(page.getByRole("heading", { name: "Your PDF is ready" })).toBeVisible();
+    await expect(page.getByText("Converted on this device. Your file never left it.")).toBeVisible();
+    const file = await downloadResult(page);
+    expect(file.name).toBe("Annual summary.pdf");
+    const [text] = await pageTexts(file.bytes);
+    expect(text).toContain("Annual summary");
+    expect(text).toContain("Second point");
+    expect(text).toContain("Page 1 of 1");
+    expect(requests.filter((entry) => entry.startsWith("POST"))).toEqual([]);
+  });
+
+  test("Word to PDF on this device refuses an old .doc file with the reason, and offers a way forward", async ({ page }) => {
+    await page.route("**/api/capabilities", (route) => route.abort());
+    await page.goto("/tools/word-to-pdf");
+    await addFiles(page, [{ name: "old.doc", bytes: new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 1, 2, 3, 4]), mimeType: "application/msword" }]);
+    await expect(page.getByText(/is not a supported file/)).toBeVisible();
+    await expect(page.getByText(/.docx/).first()).toBeVisible();
+  });
+
+  test("Excel to PDF converts a workbook on this device and shows the formats it kept", async ({ page }) => {
+    await page.route("**/api/capabilities", (route) => route.abort());
+    await page.goto("/tools/excel-to-pdf");
+    await addFiles(page, [{ name: "sales.xlsx", bytes: await makeWorkbook(), mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }]);
+    await expect(page.getByLabel("Fit wide sheets to the page width")).toBeChecked();
+    await page.getByTestId("convert-button").click();
+    await expect(page.getByRole("heading", { name: "Your PDF is ready" })).toBeVisible();
+    const file = await downloadResult(page);
+    expect(file.name).toBe("sales.pdf");
+    const texts = await pageTexts(file.bytes);
+    expect(texts).toHaveLength(2);
+    expect(texts[0]).toContain("$1,234.50");
+    expect(texts[0]).toContain("25.6%");
+    expect(texts[1]).toContain("Second sheet text");
+  });
+
+  test("a CSV file becomes a PDF table on this device", async ({ page }) => {
+    await page.route("**/api/capabilities", (route) => route.abort());
+    await page.goto("/tools/excel-to-pdf");
+    await addFiles(page, [{ name: "numbers.csv", bytes: new TextEncoder().encode("name,amount\nwidget,4\ngadget,10.5\n"), mimeType: "text/csv" }]);
+    await page.getByTestId("convert-button").click();
+    await expect(page.getByRole("heading", { name: "Your PDF is ready" })).toBeVisible();
+    const [text] = await pageTexts((await downloadResult(page)).bytes);
+    expect(text).toContain("widget");
+    expect(text).toContain("10.5");
   });
 });
 

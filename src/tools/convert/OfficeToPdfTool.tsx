@@ -1,8 +1,9 @@
-import { useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dropzone } from "../../components/files/Dropzone";
 import { FileList } from "../../components/files/FileList";
 import { type ResultRow, ResultTable } from "../../components/tool/ResultTable";
 import { Alert, ErrorAlert } from "../../components/ui/Alerts";
+import { Checkbox, ChoiceCards, Segmented } from "../../components/ui/Field";
 import { Icon } from "../../components/ui/Icon";
 import { Panel } from "../../components/tool/Panel";
 import { ProcessPanel } from "../../components/tool/ProcessPanel";
@@ -23,14 +24,48 @@ interface Outcome {
   source: string;
   output?: OutputFile;
   error?: string;
+  /** What could not be reproduced, in plain sentences. */
+  notes?: string[];
 }
 
-/** Word, Excel and PowerPoint to PDF: the file goes to the self-hosted server, LibreOffice converts it, and the PDF is checked on return. */
+type Kind = "docx" | "xlsx" | "pptx";
+type Mode = "device" | "server";
+type Orientation = "auto" | "portrait" | "landscape";
+
+const KIND_OF: Record<string, Kind> = { "word-to-pdf": "docx", "excel-to-pdf": "xlsx", "powerpoint-to-pdf": "pptx" };
+
+/** The file types the converters that run on this device can read. */
+const DEVICE_EXTENSIONS: Record<Kind, readonly string[]> = {
+  docx: [".docx", ".docm", ".dotx"],
+  xlsx: [".xlsx", ".xlsm", ".csv"],
+  pptx: [".pptx", ".pptm"],
+};
+
+/** Which kinds can be converted on this device. PowerPoint still needs the server. */
+const DEVICE_READY: Record<Kind, boolean> = { docx: true, xlsx: true, pptx: false };
+
+const KIND_NAME: Record<Kind, string> = { docx: "Word", xlsx: "Excel", pptx: "PowerPoint" };
+
+/**
+ * Word, Excel and PowerPoint to PDF. By default the file is converted right here in the browser tab. The optional
+ * LibreOffice mode sends it to the self-hosted server instead, which can keep more of an unusual layout.
+ */
 export default function OfficeToPdfTool({ tool }: ToolProps) {
+  const kind = KIND_OF[tool.id] ?? "docx";
+  const deviceReady = DEVICE_READY[kind];
   const available = useEngineAvailable("libreoffice");
   const capabilities = useCapabilities();
+  const serverUsable = available === true;
+  const [mode, setMode] = useState<Mode>(deviceReady ? "device" : "server");
+  const [fitWidth, setFitWidth] = useState(true);
+  const [orientation, setOrientation] = useState<Orientation>("auto");
   const serverLimit = capabilities.status === "ready" ? capabilities.capabilities.limits.maxUploadBytes : undefined;
-  const files = useDocFiles({ extensions: tool.accept, label: tool.pickLabel, maxBytes: serverLimit ? Math.min(serverLimit, LIMITS.maxFileBytes) : LIMITS.maxFileBytes });
+  const onDevice = mode === "device" && deviceReady;
+  const files = useDocFiles({
+    extensions: onDevice ? DEVICE_EXTENSIONS[kind] : tool.accept,
+    label: tool.pickLabel,
+    maxBytes: !onDevice && serverLimit ? Math.min(serverLimit, LIMITS.maxFileBytes) : LIMITS.maxFileBytes,
+  });
   const job = useJob<Outcome[]>();
   const heading = useRef<HTMLHeadingElement>(null);
   const finished = job.state.phase === "done";
@@ -48,14 +83,26 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
       for (const [index, item] of targets.entries()) {
         const share = (fraction: number, message?: string) => onProgress((index + fraction) / targets.length, targets.length > 1 ? `File ${index + 1} of ${targets.length}: ${message ?? item.name}` : message);
         try {
-          const bytes = await convertOfficeToPdf({ name: item.name, bytes: item.bytes }, { signal, onProgress: (fraction, message) => share(fraction * 0.9, message) });
+          let bytes: Uint8Array;
+          let notes: string[] | undefined;
+          if (onDevice) {
+            const result = await runOperation(
+              "officeToPdf",
+              { name: item.name, bytes: item.bytes, options: kind === "xlsx" ? { fitWidth, orientation } : undefined },
+              { signal, onProgress: (fraction, message) => share(fraction * 0.9, message) },
+            );
+            bytes = result.bytes;
+            notes = result.warnings.length > 0 ? result.warnings : undefined;
+          } else {
+            bytes = await convertOfficeToPdf({ name: item.name, bytes: item.bytes }, { signal, onProgress: (fraction, message) => share(fraction * 0.9, message) });
+          }
           share(0.92, "Checking the PDF");
           // Whatever came back is only offered when it really opens as a PDF.
           const probe = await runOperation("probe", { bytes }, { signal });
-          if (probe.state !== "ok" || !probe.pageCount) throw new AppError("VERIFICATION_FAILED", "The server returned something that is not a readable PDF, so it was discarded.");
+          if (probe.state !== "ok" || !probe.pageCount) throw new AppError("VERIFICATION_FAILED", onDevice ? "The converted file is not a readable PDF, so it was discarded." : "The server returned something that is not a readable PDF, so it was discarded.");
           const name = uniqueName(`${baseName(item.name)}.pdf`, taken);
           taken.push(name);
-          outcomes.push({ source: item.name, output: { name, bytes, mime: MIME.pdf, pageCount: probe.pageCount } });
+          outcomes.push({ source: item.name, output: { name, bytes, mime: MIME.pdf, pageCount: probe.pageCount }, notes });
         } catch (error) {
           const failure = toAppError(error);
           if (failure.code === "CANCELLED") throw failure;
@@ -70,7 +117,8 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
     files.clear();
   };
 
-  if (available !== true) {
+  // PowerPoint, until it can be converted here, and the server mode both need the server.
+  if (!onDevice && available !== true && files.items.length === 0 && mode === "server") {
     return <ServerNotice engine="libreoffice" what={`${tool.name} conversion`} />;
   }
 
@@ -81,8 +129,9 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
   if (job.state.phase === "done") {
     const outcomes = job.state.result;
     const made = outcomes.filter((outcome): outcome is Outcome & { output: OutputFile } => outcome.output !== undefined);
-    const rows: ResultRow[] = outcomes.map((outcome) => ({ source: outcome.source, output: outcome.output && { name: outcome.output.name, size: outcome.output.bytes.length }, error: outcome.error }));
+    const rows: ResultRow[] = outcomes.map((outcome) => ({ source: outcome.source, output: outcome.output && { name: outcome.output.name, size: outcome.output.bytes.length }, error: outcome.error, notes: outcome.notes }));
     const failures = outcomes.length - made.length;
+    const withNotes = outcomes.filter((outcome) => outcome.notes && outcome.notes.length > 0).length;
     const table = <ResultTable rows={rows} caption={outcomes.length === 1 ? "Result" : "Result per file"} />;
     if (made.length === 0) {
       return (
@@ -113,7 +162,7 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
     return (
       <ResultPanel
         title={made.length === 1 ? "Your PDF is ready" : `${made.length} PDFs are ready`}
-        subtitle="Converted by LibreOffice on your server. The uploaded files were deleted there as soon as the conversion finished."
+        subtitle={onDevice ? "Converted on this device. Your file never left it." : "Converted by LibreOffice on your server. The uploaded files were deleted there as soon as the conversion finished."}
         files={made.map((outcome) => outcome.output)}
         stats={[
           { label: "Converted", value: String(made.length) },
@@ -125,6 +174,14 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
             {failures > 0 && (
               <Alert tone="warning" title={`${plural(failures, "file")} could not be converted`}>
                 <p>The others finished. The reason for each file is in the table.</p>
+              </Alert>
+            )}
+            {withNotes > 0 && (
+              <Alert tone="warning" title="Some parts could not be reproduced" testId="conversion-notes">
+                <p>
+                  {withNotes === 1 ? "One file contains" : `${withNotes} files contain`} things this converter cannot draw. Open “What was done” in the table to see exactly what was left out, and check the PDF before you send it. For difficult
+                  layouts, the LibreOffice mode on a server you run can do more.
+                </p>
               </Alert>
             )}
             {table}
@@ -140,20 +197,59 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
 
   if (files.items.length === 0) {
     return (
-      <Dropzone
-        extensions={tool.accept}
-        multiple
-        pickLabel={tool.pickLabel}
-        onFiles={files.addFiles}
-        rejections={files.rejections}
-        onDismissRejections={files.clearRejections}
-        note={
-          <>
-            <Icon name="server" size={16} />
-            Sent to the server you run, converted, and deleted as soon as it is done.
-          </>
-        }
-      />
+      <div className="stack">
+        {deviceReady && (
+          <ChoiceCards<Mode>
+            name="convert-mode"
+            legend="How to convert"
+            value={mode}
+            onChange={setMode}
+            options={[
+              {
+                value: "device",
+                title: "On this device",
+                tag: "Private",
+                testId: "mode-device",
+                description: `Converts ${KIND_NAME[kind]} files right here in your browser. Nothing is uploaded. Pictures, tables, lists, headers and footers are kept; features it cannot draw are listed after the conversion.`,
+              },
+              {
+                value: "server",
+                title: "LibreOffice on your server",
+                testId: "mode-server",
+                disabled: !serverUsable,
+                description: serverUsable
+                  ? "Uses LibreOffice on the server you run. The file is uploaded to your server and deleted right after. Accepts older .doc, .xls and OpenDocument files too."
+                  : capabilities.status === "ready"
+                    ? "Not available: LibreOffice is not installed on the server."
+                    : capabilities.status === "unavailable"
+                      ? "Not available: this site is not connected to a conversion server."
+                      : "Checking whether the server has LibreOffice…",
+              },
+            ]}
+          />
+        )}
+        <Dropzone
+          extensions={onDevice ? DEVICE_EXTENSIONS[kind] : tool.accept}
+          multiple
+          pickLabel={tool.pickLabel}
+          onFiles={files.addFiles}
+          rejections={files.rejections}
+          onDismissRejections={files.clearRejections}
+          note={
+            onDevice ? (
+              <>
+                <Icon name="shield" size={16} />
+                Converted on this device. Your files are never uploaded.
+              </>
+            ) : (
+              <>
+                <Icon name="server" size={16} />
+                Sent to the server you run, converted, and deleted as soon as it is done.
+              </>
+            )
+          }
+        />
+      </div>
     );
   }
 
@@ -174,18 +270,38 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
             status: item.status === "reading" ? { tone: "muted", text: "Reading…" } : item.status === "invalid" ? { tone: "error", text: item.message ?? "This file cannot be used." } : undefined,
           }))}
         />
-        <Dropzone compact extensions={tool.accept} multiple pickLabel={tool.pickLabel} onFiles={files.addFiles} rejections={files.rejections} onDismissRejections={files.clearRejections} />
+        <Dropzone compact extensions={onDevice ? DEVICE_EXTENSIONS[kind] : tool.accept} multiple pickLabel={tool.pickLabel} onFiles={files.addFiles} rejections={files.rejections} onDismissRejections={files.clearRejections} />
       </div>
       <aside className="tool-layout__side">
         <Panel title="Convert to PDF">
           <p className="panel__note" data-testid="convert-summary">
             {plural(files.items.length, "file")} · {formatBytes(files.items.reduce((sum, item) => sum + item.size, 0))}
           </p>
-          <p className="panel__note">The files are uploaded to the server you run, converted with LibreOffice, and deleted from it right after. Nothing goes to any other service.</p>
+          {onDevice ? (
+            <p className="panel__note">The files are converted in this browser tab. Nothing is uploaded anywhere.</p>
+          ) : (
+            <p className="panel__note">The files are uploaded to the server you run, converted with LibreOffice, and deleted from it right after. Nothing goes to any other service.</p>
+          )}
+          {onDevice && kind === "xlsx" && (
+            <>
+              <Checkbox checked={fitWidth} onChange={setFitWidth} label="Fit wide sheets to the page width" hint="Shrinks a sheet that is wider than the page (never below half size) so its columns are not split across pages." />
+              <Segmented<Orientation>
+                name="sheet-orientation"
+                legend="Page orientation"
+                value={orientation}
+                onChange={setOrientation}
+                options={[
+                  { value: "auto", label: "Automatic" },
+                  { value: "portrait", label: "Portrait" },
+                  { value: "landscape", label: "Landscape" },
+                ]}
+              />
+            </>
+          )}
           {files.items.length > 0 && !allReady && !files.busy && <Alert tone="warning">Remove the files that have a problem before converting.</Alert>}
           <div className="action-bar">
             <button type="button" className="btn btn--primary btn--lg" disabled={!allReady || files.busy} onClick={convert} data-testid="convert-button">
-              <Icon name="server" size={22} />
+              <Icon name={onDevice ? tool.icon : "server"} size={22} />
               {files.items.length > 1 ? `Convert ${files.items.length} files` : "Convert to PDF"}
             </button>
             <div className="action-bar__row">

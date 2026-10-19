@@ -37,7 +37,7 @@ const FAQ: { q: string; a: string }[] = [
   },
   {
     q: "Are my files uploaded?",
-    a: "Not for most tools. Merge, split, organize, rotate, compress, JPG ⇄ PDF, page numbers, watermark, crop, edit, protect, unlock, repair and metadata all run in your browser. The exceptions are Word, Excel and PowerPoint to PDF, and the optional server modes of a few converters: they need LibreOffice, which runs on the server. Those tools say so before you start, send the file once, and the server deletes it as soon as the conversion ends.",
+    a: "Not for most tools. Merge, split, organize, rotate, compress, JPG ⇄ PDF, Word to PDF, Excel to PDF, page numbers, watermark, crop, edit, protect, unlock, repair and metadata all run in your browser. The exceptions are PowerPoint to PDF and the optional server modes of a few converters: they need LibreOffice, which runs on a server. Those tools say so before you start, send the file once, and the server deletes it as soon as the conversion ends.",
   },
   {
     q: "How big can a file be?",

@@ -201,10 +201,34 @@ export class PageBuilder {
   constructor(
     readonly width: number,
     readonly height: number,
-  ) {}
+  ) {
+    this.viewHeight = height;
+  }
+
+  /** While a scaled view is open, coordinates are in the view's own units (see `beginView`). */
+  private viewHeight: number;
+  private view: { scale: number; offsetX: number; translateY: number } | null = null;
 
   private y(value: number): number {
-    return this.height - value;
+    return this.viewHeight - value;
+  }
+
+  /**
+   * Draws everything that follows scaled by `scale`, with (0, 0) at (offsetX, offsetY) from the page's top-left corner and
+   * y measured downwards in the view's own units. Used for spreadsheets, which print at a percentage of their size.
+   */
+  beginView(scale: number, offsetX: number, offsetY: number, viewHeight: number): void {
+    this.viewHeight = viewHeight;
+    const translateY = this.height - offsetY - scale * viewHeight;
+    this.view = { scale, offsetX, translateY };
+    this.ops.push(`q ${n(scale)} 0 0 ${n(scale)} ${n(offsetX)} ${n(translateY)} cm`);
+  }
+
+  endView(): void {
+    if (!this.view) return;
+    this.ops.push("Q");
+    this.view = null;
+    this.viewHeight = this.height;
   }
 
   save(): void {
@@ -308,7 +332,14 @@ export class PageBuilder {
   }
 
   link(x: number, y: number, width: number, height: number, target: LinkTarget): void {
-    this.links.push({ x, y, width, height, target });
+    const view = this.view;
+    if (!view) {
+      this.links.push({ x, y, width, height, target });
+      return;
+    }
+    // A link inside a scaled view is stored in page coordinates, which is what the annotation needs.
+    const top = this.height - (view.scale * (this.viewHeight - y) + view.translateY);
+    this.links.push({ x: view.offsetX + view.scale * x, y: top, width: view.scale * width, height: view.scale * height, target });
   }
 }
 

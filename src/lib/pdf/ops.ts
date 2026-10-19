@@ -16,6 +16,12 @@ import { protectPdf, unlockPdf } from "./security";
 import type { ProtectOptions, UnlockOptions } from "./security";
 import type { JobContext, PdfInput } from "./types";
 
+/** What the Office converters can be told (only spreadsheets have options). */
+export interface OfficeOptions {
+  fitWidth?: boolean;
+  orientation?: "auto" | "portrait" | "landscape";
+}
+
 /**
  * The registry of operations that can run in the background worker. Each takes ONE argument object
  * (so it is easy to send over `postMessage`) plus the job context. The UI never imports the engine
@@ -42,6 +48,12 @@ export const operations = {
   exportDocument: (a: { plan: ExportPlan }, ctx: JobContext) => exportDocument(a.plan, ctx),
   readMetadata: (a: { input: PdfInput }) => readMetadata(a.input),
   writeMetadata: (a: { input: PdfInput; changes: MetadataChanges }, ctx: JobContext) => writeMetadata(a.input, a.changes, ctx),
+  /** Word, Excel and CSV files to PDF on this device. The converters are loaded only when this is first asked for. */
+  officeToPdf: async (a: { name: string; bytes: Uint8Array; options?: OfficeOptions }, ctx: JobContext) => {
+    const [{ installBrowserFonts }, { convertOfficeFile }] = await Promise.all([import("../office/browserFonts"), import("../office")]);
+    installBrowserFonts();
+    return convertOfficeFile(a.name, a.bytes, { ...a.options, onProgress: ctx.onProgress });
+  },
 } as const;
 
 export type Operations = typeof operations;

@@ -56,8 +56,8 @@ describe("the tool catalog", () => {
       if (tool.processing === "server") expect(tool.description.toLowerCase(), tool.id).toMatch(/server/);
       if (tool.processing === "optional-server") expect(tool.howTo.join(" ").toLowerCase(), tool.id).toMatch(/server|libreoffice/);
     }
-    // the tools that need the server are exactly the Office-to-PDF converters
-    expect(TOOLS.filter((tool) => tool.processing === "server").map((tool) => tool.id).sort()).toEqual(["excel-to-pdf", "powerpoint-to-pdf", "word-to-pdf"]);
+    // Word and Excel convert on the device (with an optional server mode); only PowerPoint still needs the server
+    expect(TOOLS.filter((tool) => tool.processing === "server").map((tool) => tool.id).sort()).toEqual(["powerpoint-to-pdf"]);
   });
 
   it("finds tools by name, by what people call them, and by typos in the middle", () => {

@@ -20,13 +20,13 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong>On your device (nothing uploaded):</strong> merge, split, extract and delete pages, organize, rotate, compress, repair,
-            JPG to PDF, PDF to JPG, PDF to Excel, page numbers, watermark, crop, edit, protect, unlock and metadata. PDF to Word and PDF to
-            PowerPoint also work on your device in their default modes.
+            JPG to PDF, PDF to JPG, Word to PDF, Excel to PDF (including CSV files), PDF to Excel, page numbers, watermark, crop, edit,
+            protect, unlock and metadata. PDF to Word and PDF to PowerPoint also work on your device in their default modes.
           </li>
           <li>
-            <strong>On the server (uploaded once, deleted immediately):</strong> Word, Excel and PowerPoint to PDF, and the optional
-            “LibreOffice” modes of PDF to Word and PDF to PowerPoint, plus the optional stronger-compression mode. These need LibreOffice or
-            Ghostscript, which cannot run in a browser. Each of these tools says so on its page before you choose a file.
+            <strong>On the server (uploaded once, deleted immediately):</strong> PowerPoint to PDF, and the optional “LibreOffice” modes
+            of Word to PDF, Excel to PDF, PDF to Word and PDF to PowerPoint, plus the optional stronger-compression mode. These need
+            LibreOffice or Ghostscript, which cannot run in a browser. Each of these tools says so on its page before you choose a file.
           </li>
         </ul>
 
