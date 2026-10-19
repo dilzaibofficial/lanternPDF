@@ -22,6 +22,9 @@ export default defineConfig({
     target: "es2022",
     sourcemap: true,
     chunkSizeWarningLimit: 1200,
+    // Fonts stay real files: the security policy (font-src 'self') blocks data: fonts, which Vite would otherwise
+    // inline when a font subset is tiny. Everything else keeps Vite's default inlining rule.
+    assetsInlineLimit: (file) => (/\.(woff2?|ttf|otf)$/i.test(file) ? false : undefined),
   },
   worker: {
     format: "es",
