@@ -1,0 +1,793 @@
+{
+  "tool": "rea-agents",
+  "tool_version": "6.7.0",
+  "operation": "capture_browser_scenario (CLI: rea capture-browser-scenario)",
+  "provider": "rea-playwright-browser-scenario v1",
+  "authority": "controlled-replay",
+  "confidence": "observed",
+  "browser": {
+    "product": "Chromium",
+    "version": "155.0.4283.60",
+    "mode": "launch",
+    "process_ownership": "provider-owned",
+    "cleanup": "terminated-owned-process"
+  },
+  "actions_performed": "navigate to the start URL, wait 3.5-4 s, capture. No clicks, no typing, no file uploads, no form submissions.",
+  "captured_on": "2026-10-18",
+  "note": "Raw artifacts (screenshots, DOM, accessibility trees) are kept locally in docs/evidence/raw and are git-ignored: they contain third-party markup and branding that must not be redistributed.",
+  "evidence_limitations_reported_by_rea": [
+    "Artifact identity is unavailable for this observation.",
+    "Event sequence records provider receipt order; simultaneous browser causality is not inferred.",
+    "Network content is retained only when selected; Playwright response-body bytes are API results and are not guaranteed to match wire bytes.",
+    "Request bytes are limited to what Playwright exposes; not_exposed does not establish body absence or multipart file coverage.",
+    "Network content reads settle within 5 seconds each and the observer does not request bodies from unfinished responses.",
+    "Playwright scenario events do not expose request initiator stacks; receipt order does not prove causality.",
+    "Storage values are hashed only after declared-secret redaction.",
+    "Browser host platform and architecture were not observed."
+  ],
+  "scenarios": [
+    {
+      "name": "compress-desktop",
+      "evidence_id": "ev_61fefc872f650800db95a3f85458a62ce48f9c54e42628ff36365948dbdf7a35",
+      "scenario_sha256": "f1ca6d72b87e04d558575c97675928242dee349e2683a94e4d1ad453e9cb6ca9",
+      "requested_url": "https://www.ilovepdf.com/compress_pdf",
+      "final_url": "https://www.ilovepdf.com/compress_pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Compress PDF online. Same PDF quality less file size",
+      "duration_ms": 8343,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "1625f35178d81069cb8a3ab519b8289b6a33ee81da0f3d43385b768f6512f448",
+          "bytes": 43484
+        },
+        "dom": {
+          "sha256": "08e0dd74a5b35621f3e2537af3bc19d6ec5c6e137a59223da4a92332ec638e51",
+          "bytes": 60471
+        },
+        "accessibility": {
+          "sha256": "d9eb8fcd9ce5135be97e02ba63b770e082f7ab07d72815626de659405152e2ba",
+          "bytes": 877
+        }
+      },
+      "network": {
+        "requests": 51,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://5f03f527eef33418bc7e3732d15bd04f.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "docs-desktop",
+      "evidence_id": "ev_bbc7a36c77b230884d2a9a2db5bc75d981b7dafcf9c74bcde6a3501e600f47f1",
+      "scenario_sha256": "5cfb9a167ee881274c377b19039a03181b54f4d0eab78e636874601d2af17aca",
+      "requested_url": "https://www.ilovepdf.com/help/documentation",
+      "final_url": "https://www.ilovepdf.com/help/documentation",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "All the help you need to enjoy our online tools for managing PDFs",
+      "duration_ms": 7271,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "c2e89bd429d7efca3765ab254a4cbee4efd0332d234d4ae1c9397c051bae0d87",
+          "bytes": 125533
+        },
+        "dom": {
+          "sha256": "707a8202395b8deb3daa71f0853147ef365282ab2bf570ea8f35b0211c4d2b23",
+          "bytes": 64861
+        },
+        "accessibility": {
+          "sha256": "f6598ce2abbe81d9c4a2502de64bb6ba228e1e47bdf032661b52d326877b2419",
+          "bytes": 25432
+        }
+      },
+      "network": {
+        "requests": 50,
+        "failed_requests": 3,
+        "origin_count": 4,
+        "third_party_origin_count": 2,
+        "third_party_origins": [
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "edit-desktop",
+      "evidence_id": "ev_5e5e4a53073b6a4132c890d2537cbde002de903134ea63386c6b4689e2cfc905",
+      "scenario_sha256": "7d2197f88ce6d059ad3447ea328adc01a7a3f8db46200282ddcbfcdb0f1e57fe",
+      "requested_url": "https://www.ilovepdf.com/edit-pdf",
+      "final_url": "https://www.ilovepdf.com/edit-pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Edit PDF | Online PDF Editor and Form Filler",
+      "duration_ms": 8008,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "53ca8c115432603873d37bd3f17e4fc7f0315f08731316895f798b48df4a6697",
+          "bytes": 44792
+        },
+        "dom": {
+          "sha256": "f21ddaf5457c9f3dd3d7d0d33ada48bb475756027122739a53ae44f6ebf2e591",
+          "bytes": 80271
+        },
+        "accessibility": {
+          "sha256": "85a92c2111e1a64b64412734093cf5a7b2ec92b87828ecb5ce0dc71cac2fcdfd",
+          "bytes": 907
+        }
+      },
+      "network": {
+        "requests": 45,
+        "failed_requests": 4,
+        "origin_count": 16,
+        "third_party_origin_count": 14,
+        "third_party_origins": [
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "faq-desktop",
+      "evidence_id": "ev_29d5d3c39115962c6eeaff4441434fe78fae5258b2ff90ee25b507bc1a72c36e",
+      "scenario_sha256": "e6d70eb79499455fa4f5c85be7de01a466b0c33e4110bd22b2e350efb5022a4f",
+      "requested_url": "https://www.ilovepdf.com/help/faq",
+      "final_url": "https://www.ilovepdf.com/help/faq",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Frequently asked questions of iLovePDF",
+      "duration_ms": 7437,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "01d1f42277e92d7e8c0569b651281bda5ac65067ccdd9ca20596b3989955b144",
+          "bytes": 117512
+        },
+        "dom": {
+          "sha256": "d62183fbc50a4a02cd5ff0b8030a1cfd4df5b22327d8a831972d9adbd664d07a",
+          "bytes": 41235
+        },
+        "accessibility": {
+          "sha256": "300febf7fa48e806e223113626e6ef1e715b1b40d233ddeb90cf34469ad45e79",
+          "bytes": 9791
+        }
+      },
+      "network": {
+        "requests": 29,
+        "failed_requests": 3,
+        "origin_count": 4,
+        "third_party_origin_count": 2,
+        "third_party_origins": [
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "home-desktop",
+      "evidence_id": "ev_f76ebda3d94b777ca29a303c14bb8585491feb80c0ff303346c7170e193c5b80",
+      "scenario_sha256": "f47c76162ed3f4c8c2966b9b7ee4b75de87787054808cb9d927f8a9da3306746",
+      "requested_url": "https://www.ilovepdf.com/",
+      "final_url": "https://www.ilovepdf.com/",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "iLovePDF | Online PDF tools for PDF lovers",
+      "duration_ms": 9170,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "9d86e13134c50c2b61a55a6ae4592c2f662d38737c09970ec2565bb3e89dcf80",
+          "bytes": 178498
+        },
+        "dom": {
+          "sha256": "a89eb8d8ee6faa34442222f369b52818845422f7d1e46cf697b156f4b16a41e5",
+          "bytes": 121739
+        },
+        "accessibility": {
+          "sha256": "ba059f61a9c57053d80f78709472143e98fe51c453cf53a56bb567503936e117",
+          "bytes": 15543
+        }
+      },
+      "network": {
+        "requests": 31,
+        "failed_requests": 3,
+        "origin_count": 4,
+        "third_party_origin_count": 2,
+        "third_party_origins": [
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "home-mobile",
+      "evidence_id": "ev_785e811eaa0bd659740cbbdf637d8016094add30aea5d51fd5ec4f16ca022f1e",
+      "scenario_sha256": "4cd414e42074d5db9c65dce0ca8477493edda60cf456f711e2749d28ff92cff1",
+      "requested_url": "https://www.ilovepdf.com/",
+      "final_url": "https://www.ilovepdf.com/",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "iLovePDF | Online PDF tools for PDF lovers",
+      "duration_ms": 7461,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "3618c952661c43b76fdaf6a6b9bdebfd6f0086a79e961cccfd4fa5c9125fb02f",
+          "bytes": 84102
+        },
+        "dom": {
+          "sha256": "ae8d17a4f8c4bddc7b765916f76d5373755705f0dbccce0de20cbf63167b7a27",
+          "bytes": 121739
+        },
+        "accessibility": {
+          "sha256": "675810732872d6837c14f87b2ed6461a971a151c63be151a4441ec2aa6d24a55",
+          "bytes": 15020
+        }
+      },
+      "network": {
+        "requests": 31,
+        "failed_requests": 3,
+        "origin_count": 4,
+        "third_party_origin_count": 2,
+        "third_party_origins": [
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "home-tablet",
+      "evidence_id": "ev_c58ea8f6f1cd873d5ea6f3b0baf6e1b72a39565dfcc7bcdf6c3b7f8304cc36f0",
+      "scenario_sha256": "62d46074aa013eb303ef637b93794729a18d26a9da76b98422776614f8a338f9",
+      "requested_url": "https://www.ilovepdf.com/",
+      "final_url": "https://www.ilovepdf.com/",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "iLovePDF | Online PDF tools for PDF lovers",
+      "duration_ms": 7691,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "432b35a6925adc5e4e9758a3dd5846810d0fdbe61bfc88d08d06101418ec6abc",
+          "bytes": 152458
+        },
+        "dom": {
+          "sha256": "0d4f8f402e8fd77a182debbb587abe67c9de246ad97c5008aa9d0a3bc62b5334",
+          "bytes": 121739
+        },
+        "accessibility": {
+          "sha256": "4d93141fa1b2004cba58ac85cf44e92f1a4749517c714edd0d321af084fee9f0",
+          "bytes": 15080
+        }
+      },
+      "network": {
+        "requests": 31,
+        "failed_requests": 3,
+        "origin_count": 4,
+        "third_party_origin_count": 2,
+        "third_party_origins": [
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "jpg2pdf-desktop",
+      "evidence_id": "ev_ca7c0409fd3e5f5a341355a729306f1bd448e4e07154a7491eef7eca7f726e3d",
+      "scenario_sha256": "77eab0ece97749fd7f176d2475234a829051f552f37a1bfd3004bb7a215ba671",
+      "requested_url": "https://www.ilovepdf.com/jpg_to_pdf",
+      "final_url": "https://www.ilovepdf.com/jpg_to_pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Convert JPG to PDF. Images JPG to PDF online",
+      "duration_ms": 8060,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "6c4280af11f31f0385f227d8feb4810ac4782792017d38c80ba3537806dc1934",
+          "bytes": 44967
+        },
+        "dom": {
+          "sha256": "578b504b00baaa30370ce676142f5e5466b970cee78d85fb5e8bef2e59f3cca0",
+          "bytes": 81446
+        },
+        "accessibility": {
+          "sha256": "78893e4ae6b1ec8332cda3ac2519dc568ec0a917db82f22009e2de31cc41f4fd",
+          "bytes": 894
+        }
+      },
+      "network": {
+        "requests": 51,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://27814e21c0223a4cec94dd95f0adb64e.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "merge-desktop",
+      "evidence_id": "ev_4467eef3c204045ec8faf0028d1bca49ba892000668bc2483d7e8e804f7b35bb",
+      "scenario_sha256": "da8f114475e047b22897971d594c4a898c236c6de89985e89398e86724229906",
+      "requested_url": "https://www.ilovepdf.com/merge_pdf",
+      "final_url": "https://www.ilovepdf.com/merge_pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Merge PDF files online. Free service to merge PDF",
+      "duration_ms": 8132,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "54a5dc0473f1d119f6dd8d8c5ecabe5c66e38ef52265c098837b0bedc3624dcc",
+          "bytes": 44502
+        },
+        "dom": {
+          "sha256": "495ede2d1b85daea7efd970d3ebf47912fd420f27bff6d3e22a8ba03fe9ba44e",
+          "bytes": 58087
+        },
+        "accessibility": {
+          "sha256": "95ed893e64959b93995c318fbfbe3820113caf93547b76b7583e616f5b4a4f6a",
+          "bytes": 889
+        }
+      },
+      "network": {
+        "requests": 51,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://70ca889e14c2b9c155564323270e23a3.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "merge-mobile",
+      "evidence_id": "ev_a1f3ae855f79bf3800b696bdb416d1b637372319d133b7a9126905f15de3eff0",
+      "scenario_sha256": "79705dff9b1994830bbf0a6633e93b0361eee34391e4432449b9ee663845fc25",
+      "requested_url": "https://www.ilovepdf.com/merge_pdf",
+      "final_url": "https://www.ilovepdf.com/merge_pdf",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Merge PDF files online. Free service to merge PDF",
+      "duration_ms": 8481,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "11bff4420e3f11a4d6ff7ba89c55d4123e79f1d1f2fe10a80e40257074573571",
+          "bytes": 24149
+        },
+        "dom": {
+          "sha256": "2155feb8773e71fab1a1da841fad1f5b1cb6a714079a65d51317685bbead1f7a",
+          "bytes": 57770
+        },
+        "accessibility": {
+          "sha256": "acc16d85b20615ce57b2fde345cf253f2c6fdded5adfb2608e579b490278dfe3",
+          "bytes": 423
+        }
+      },
+      "network": {
+        "requests": 43,
+        "failed_requests": 4,
+        "origin_count": 16,
+        "third_party_origin_count": 14,
+        "third_party_origins": [
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "organize-desktop",
+      "evidence_id": "ev_d9c7c6e701b0842bb32c0456c8525fb134cac85cf9de58bf79be7f5091402db6",
+      "scenario_sha256": "1abb3429f02f84199a004cf3b12fef9254f7209fa55ad6c53b59c3f8ff2b332e",
+      "requested_url": "https://www.ilovepdf.com/organize-pdf",
+      "final_url": "https://www.ilovepdf.com/organize-pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Organize PDF files online. Free tool to sort PDF pages",
+      "duration_ms": 8130,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "e1264fe45cbbeabf7ba4283976982fad1cf299dcea960699dd29c2de58a0431a",
+          "bytes": 133911
+        },
+        "dom": {
+          "sha256": "4de8b25ae6370d7685bc957328e1a8b5548caf5b156a5da57cb9878507afadd6",
+          "bytes": 64371
+        },
+        "accessibility": {
+          "sha256": "00c20fd92162465ab3b9d704796d012693e560a8f7ae52f3dbabf8385bf779ca",
+          "bytes": 924
+        }
+      },
+      "network": {
+        "requests": 68,
+        "failed_requests": 11,
+        "origin_count": 24,
+        "third_party_origin_count": 22,
+        "third_party_origins": [
+          "https://a267ce68f0cc61d9abfa4d1af28cf75d.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cdn.ampproject.org",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://googleads.g.doubleclick.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://tpc.googlesyndication.com",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "pdf2jpg-desktop",
+      "evidence_id": "ev_0bcb72fb3f6c301dc90def8068e00f6fb4e16e202f4b82c4e1c2b5a79ff53620",
+      "scenario_sha256": "c6cdf45e91ce4512e8916d2b8fdbe173f5297682f30da19531a5fe61aa3103c0",
+      "requested_url": "https://www.ilovepdf.com/pdf_to_jpg",
+      "final_url": "https://www.ilovepdf.com/pdf_to_jpg",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Convert PDF to JPG. Extract images from a PDF",
+      "duration_ms": 9908,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "82dcd09d5c063c7e0d57579a0b77ce120ed81cc45652e577636c60c8e21985d5",
+          "bytes": 43004
+        },
+        "dom": {
+          "sha256": "7701fbe540066bdf66a23ba3cfd969c94ea97bc36964050518f2614b62c26ca5",
+          "bytes": 60607
+        },
+        "accessibility": {
+          "sha256": "e4391e764c67ace429422e3bf192c2d294c8154058d8ac053936cc8f7c5d83e5",
+          "bytes": 885
+        }
+      },
+      "network": {
+        "requests": 51,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://691d780e4e0d50ed8bd5e26c90ab72a2.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "protect-desktop",
+      "evidence_id": "ev_22fa7073cca9d81b7bc6da821390a4b4dadf6c83379a6b1f6dfd33b115e0329b",
+      "scenario_sha256": "fe0d157bf05f62adabecd563e6699c6ac3f6772348c9f69e025dd2afed333b26",
+      "requested_url": "https://www.ilovepdf.com/protect-pdf",
+      "final_url": "https://www.ilovepdf.com/protect-pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Protect PDF. Tool to encrypt PDF with password",
+      "duration_ms": 7987,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "71ea698c4adcf9bcae52ac23fe568e5762b020f5b6013aeafe3fb7d672fc0058",
+          "bytes": 43494
+        },
+        "dom": {
+          "sha256": "a489006e910ffb21b0015a7791a189df5198a1daf6b85f350414fbded8f6b4fa",
+          "bytes": 79928
+        },
+        "accessibility": {
+          "sha256": "2954b16d319a05fb74be63ccd0d87c5c88d6cadfed02ccd79ace4420b9ab260d",
+          "bytes": 884
+        }
+      },
+      "network": {
+        "requests": 51,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://873c8444e69b21687e930b1c296e5cee.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "split-desktop",
+      "evidence_id": "ev_36db2142e917bf189d685959560befd5ef036416405ee9ea6e9a70354f1ab556",
+      "scenario_sha256": "59c5789e3e41f343b012728778b2e59dd661873039eeede296d6cff83ea1e62f",
+      "requested_url": "https://www.ilovepdf.com/split_pdf",
+      "final_url": "https://www.ilovepdf.com/split_pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Split PDF files online. Free service to split PDF",
+      "duration_ms": 8120,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "e9968a1e89ff2a3c8f95d668089a72ad69ed8637f6889ff31058256a4cb9059c",
+          "bytes": 44168
+        },
+        "dom": {
+          "sha256": "f6477ef115d5097c8bcbb4a864e8638817daf13dbf19f16596086a3eb0f739b0",
+          "bytes": 81152
+        },
+        "accessibility": {
+          "sha256": "957ab0f987679e2ebc57b314b0ce69c89a34dfd407381eb97df5a4211a0fe1ee",
+          "bytes": 893
+        }
+      },
+      "network": {
+        "requests": 52,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://0ba690f21c65a90c7013c2fca6d3c4c9.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    },
+    {
+      "name": "unlock-desktop",
+      "evidence_id": "ev_a1ee6be7e5ecb80da0433cf2dba4a0c0e478ce7e28dbecd8dc047b00d2d45dac",
+      "scenario_sha256": "44512c396cbe5d208c35da0b843a8366a5d25fc45704842fbb0ef399c33621d4",
+      "requested_url": "https://www.ilovepdf.com/unlock_pdf",
+      "final_url": "https://www.ilovepdf.com/unlock_pdf",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "color_scheme": "light",
+      "page_title": "Unlock PDF files. Remove PDF password",
+      "duration_ms": 8070,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "5a24c5ccffb5d98aa94e73dfe4705b4e17ef27638cbd2dd85a307350b9d374a1",
+          "bytes": 44677
+        },
+        "dom": {
+          "sha256": "aa27b38bbaf20cc7b9ed35313449072eb7a17e1b3e3b352d9a157c4d24c417d5",
+          "bytes": 57744
+        },
+        "accessibility": {
+          "sha256": "f1eb4b55bed3784f4fb3b96ff454ba72d1f97d5ef2618dc3d8bfacc1f11b1483",
+          "bytes": 893
+        }
+      },
+      "network": {
+        "requests": 51,
+        "failed_requests": 4,
+        "origin_count": 21,
+        "third_party_origin_count": 19,
+        "third_party_origins": [
+          "https://52edf45b7881509c4ed2df32d37a036c.safeframe.googlesyndication.com",
+          "https://c1.adform.net",
+          "https://cm.g.doubleclick.net",
+          "https://creativecdn.com",
+          "https://ep1.adtrafficquality.google",
+          "https://ep2.adtrafficquality.google",
+          "https://eu-u.openx.net",
+          "https://google-bidout-d.openx.net",
+          "https://gum.criteo.com",
+          "https://match.adsrvr.org",
+          "https://oa.openxcdn.net",
+          "https://pagead2.googlesyndication.com",
+          "https://rtb.openx.net",
+          "https://securepubads.g.doubleclick.net",
+          "https://static.criteo.net",
+          "https://us-u.openx.net",
+          "https://www.google-analytics.com",
+          "https://www.google.com",
+          "https://www.googletagmanager.com"
+        ]
+      }
+    }
+  ]
+}

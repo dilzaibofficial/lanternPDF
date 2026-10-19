@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>LanternPDF</title>
+  <style>
+    .p{fill:#3a3ad1}.a{fill:#0b7f72}.s{stroke:#3a3ad1}.t{stroke:#0b7f72}
+    @media (prefers-color-scheme:dark){.p{fill:#9a9bff}.a{fill:#4fd1bd}.s{stroke:#9a9bff}.t{stroke:#4fd1bd}}
+  </style>
+  <path class="s" d="M13.1 6.6a2.9 2.9 0 1 1 5.8 0" fill="none" stroke-width="1.8" stroke-linecap="round"/>
+  <path class="p" d="M8.6 12 12.2 7.4h7.6L23.4 12z"/>
+  <rect class="p" x="8" y="11.6" width="16" height="2.2" rx="1.1"/>
+  <rect class="p" x="9.6" y="13.2" width="12.8" height="11" rx="2"/>
+  <path fill="#fff" d="M12.9 14.9h3.8l2.5 2.5v5.2a.8.8 0 0 1-.8.8h-5.5a.8.8 0 0 1-.8-.8v-6.9a.8.8 0 0 1 .8-.8z"/>
+  <path class="a" opacity=".55" d="M16.7 14.9v2.5h2.5z"/>
+  <path class="t" d="M14 20h4M14 21.7h2.6" fill="none" stroke-width="1.1" stroke-linecap="round"/>
+  <rect class="p" x="8" y="24" width="16" height="2.2" rx="1.1"/>
+  <rect class="a" x="10.4" y="26.2" width="11.2" height="2.2" rx="1.1"/>
+</svg>

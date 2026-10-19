@@ -1,0 +1,351 @@
+{
+  "tool": "rea-agents@6.7.0",
+  "operation": "capture_browser_scenario (CLI: rea capture-browser-scenario)",
+  "captured_on": "2026-10-18",
+  "actions_performed": "navigate to the start URL, wait 3.5 s, capture. No clicks, no typing, no file uploads, no form submissions.",
+  "note": "Raw artifacts are kept locally in docs/evidence/raw (git-ignored): they contain third-party markup and branding that must not be redistributed.",
+  "scenarios": [
+    {
+      "name": "phase2-blog-edit-pdf-text",
+      "evidence_id": "ev_f1ba660e8f817ad21fedcea803f4bcd6be060385e98ac38f7acabafa231587ec",
+      "scenario_sha256": "a13cc81b9b0cc498948bc4fe0f9efed566300c760a76a6fca21eaee25340435f",
+      "requested_url": "https://www.ilovepdf.com/blog/edit-pdf-text",
+      "final_url": "https://www.ilovepdf.com/blog/edit-pdf-text",
+      "page_title": "How to edit PDF text with an online PDF text editor",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 7108,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "a351bc5f2100f8f98e78416468bb3175395c07254669ebb163bf5e74ece028b5",
+          "bytes": 131227
+        },
+        "dom": {
+          "sha256": "eb106f1c0f9267e391b335d25d005ce00b558882630ef07878fe08dda583b0ae",
+          "bytes": 48093
+        },
+        "accessibility": {
+          "sha256": "61a8853a7fbfd79bef916c84ef88e28acb0550b3267298926c153d767a70f1ad",
+          "bytes": 10976
+        }
+      },
+      "network": {
+        "requests": 30,
+        "origins": 4,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 26,
+          "https://www.googletagmanager.com": 1,
+          "https://evt.ilovepdf.com": 2,
+          "https://www.google-analytics.com": 1
+        }
+      }
+    },
+    {
+      "name": "phase2-blog-advanced-editing",
+      "evidence_id": "ev_7dec6d6441f3afc67d34e20a2848b24c60430393dc74fb9c83060837e7ae9afd",
+      "scenario_sha256": "b8505d92b6e078b151f1f71c54a9004aaf47f269df36e8912e2aae61528788a4",
+      "requested_url": "https://www.ilovepdf.com/blog/new-advanced-pdf-editing-ilovepdf",
+      "final_url": "https://www.ilovepdf.com/blog/new-advanced-pdf-editing-ilovepdf",
+      "page_title": "Edit PDF now has more advanced features",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 6961,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "9ad9355c32f63c86635d72305999b61bc7f27067076c33355ff5c836a7d89c0a",
+          "bytes": 109200
+        },
+        "dom": {
+          "sha256": "38fa05a28f218b04d30add249114188bc9377e8d59981a7b98f2214b4ba7b6c2",
+          "bytes": 50752
+        },
+        "accessibility": {
+          "sha256": "0ec89e37640f06895f11959872dfb75a534e296a15216527028a6c004d2f5859",
+          "bytes": 13504
+        }
+      },
+      "network": {
+        "requests": 29,
+        "origins": 4,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 25,
+          "https://www.googletagmanager.com": 1,
+          "https://evt.ilovepdf.com": 2,
+          "https://www.google-analytics.com": 1
+        }
+      }
+    },
+    {
+      "name": "phase2-blog-mobile-apps",
+      "evidence_id": "ev_a3b840842618db6ce579acea61f47180beeb0a23ddcf996ca8feca80d7efadc2",
+      "scenario_sha256": "38e562ff36b1e7ab4226bc82776bd04e1218079c708367e6fd8c65f8e526a69b",
+      "requested_url": "https://www.ilovepdf.com/blog/pdf-editor-android-ios",
+      "final_url": "https://www.ilovepdf.com/blog/pdf-editor-android-ios",
+      "page_title": "Edit PDFs on mobile and tablet: A complete guide to the Edit PDF tool",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 6270,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "df3f8ac6631e886d456a53eb23a43d29fa1c32cab14ac0713da9eb0b9983ade9",
+          "bytes": 113535
+        },
+        "dom": {
+          "sha256": "5bec835235f40aafcbf1172a6df546c77239e7f6e1513840752008623c52bade",
+          "bytes": 49378
+        },
+        "accessibility": {
+          "sha256": "c87f15670eb28b13fd37fb22d41be566a173544717663bf22e73e11aff39b5d2",
+          "bytes": 11698
+        }
+      },
+      "network": {
+        "requests": 29,
+        "origins": 4,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 25,
+          "https://www.googletagmanager.com": 1,
+          "https://evt.ilovepdf.com": 2,
+          "https://www.google-analytics.com": 1
+        }
+      }
+    },
+    {
+      "name": "phase2-help-documentation",
+      "evidence_id": "ev_db218b662155052d507736554f1f75999503e715c99ab0696b3a55475d8960fa",
+      "scenario_sha256": "5cfb9a167ee881274c377b19039a03181b54f4d0eab78e636874601d2af17aca",
+      "requested_url": "https://www.ilovepdf.com/help/documentation",
+      "final_url": "https://www.ilovepdf.com/help/documentation",
+      "page_title": "All the help you need to enjoy our online tools for managing PDFs",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 6775,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "c2e89bd429d7efca3765ab254a4cbee4efd0332d234d4ae1c9397c051bae0d87",
+          "bytes": 125533
+        },
+        "dom": {
+          "sha256": "e07f90672fd2fa442b9f5473a8973036b4006b8f076308eed7cec69814115954",
+          "bytes": 64861
+        },
+        "accessibility": {
+          "sha256": "f6598ce2abbe81d9c4a2502de64bb6ba228e1e47bdf032661b52d326877b2419",
+          "bytes": 25432
+        }
+      },
+      "network": {
+        "requests": 50,
+        "origins": 4,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 46,
+          "https://www.googletagmanager.com": 1,
+          "https://www.google-analytics.com": 1,
+          "https://evt.ilovepdf.com": 2
+        }
+      }
+    },
+    {
+      "name": "phase2-pricing",
+      "evidence_id": "ev_8d97eedf8fecab3c176da3207f8b5321b438c0296bc24e4a57b1c356ee79e73b",
+      "scenario_sha256": "586dcec91408c2df69e0776554bdaa772d5e10443c5770d6706ade33ab2f4a23",
+      "requested_url": "https://www.ilovepdf.com/pricing",
+      "final_url": "https://www.ilovepdf.com/pricing",
+      "page_title": "Three types of accounts to manage PDF files with our online tools",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 6953,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "299591a93c4532cc8404ace71bc5ba6e47ce665098792b7f7258e002f31beb42",
+          "bytes": 106175
+        },
+        "dom": {
+          "sha256": "0b356ffab732b89b47cede82ce66f99713210957aacc9c769f3d1cee40baf4a2",
+          "bytes": 217311
+        },
+        "accessibility": {
+          "sha256": "9b242256cc8e1cf69348013d71e27e663b5a987718224769238f1c209ea55868",
+          "bytes": 15128
+        }
+      },
+      "network": {
+        "requests": 58,
+        "origins": 4,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 54,
+          "https://www.googletagmanager.com": 1,
+          "https://evt.ilovepdf.com": 2,
+          "https://www.google-analytics.com": 1
+        }
+      }
+    },
+    {
+      "name": "phase2-edit-tablet",
+      "evidence_id": "ev_c20f47b3f59bbda946e93e16a9deaf31897ae9a28aaf9409a1e84f45d3ee75d5",
+      "scenario_sha256": "7038dfd567dc0dc380f1375e65558e69087696058b9c0c424c8a43fc7a1b7532",
+      "requested_url": "https://www.ilovepdf.com/edit-pdf",
+      "final_url": "https://www.ilovepdf.com/edit-pdf",
+      "page_title": "Edit PDF | Online PDF Editor and Form Filler",
+      "viewport": {
+        "width": 820,
+        "height": 1180,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 6777,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "035e6f8cf33a998aabfca9962614e8377e4be9402881ee24d6193ca8ec169f2a",
+          "bytes": 34576
+        },
+        "dom": {
+          "sha256": "cd372c9d24102ba496c15b16724581e1befd32447ecfd4ea19e2952b88369b5a",
+          "bytes": 80258
+        },
+        "accessibility": {
+          "sha256": "f1e1979bfe78494de49bfcacf7ddec286343f0f6ac3cc536d1cc00fc96da5018",
+          "bytes": 469
+        }
+      },
+      "network": {
+        "requests": 45,
+        "origins": 16,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 16,
+          "https://www.googletagmanager.com": 1,
+          "https://securepubads.g.doubleclick.net": 3,
+          "https://evt.ilovepdf.com": 2,
+          "https://cm.g.doubleclick.net": 5,
+          "https://static.criteo.net": 1,
+          "https://oa.openxcdn.net": 1,
+          "https://www.google-analytics.com": 2,
+          "https://gum.criteo.com": 1,
+          "https://rtb.openx.net": 2,
+          "https://google-bidout-d.openx.net": 1,
+          "https://match.adsrvr.org": 2,
+          "https://creativecdn.com": 2,
+          "https://c1.adform.net": 2,
+          "https://us-u.openx.net": 3,
+          "https://eu-u.openx.net": 1
+        }
+      }
+    },
+    {
+      "name": "phase2-edit-mobile",
+      "evidence_id": "ev_df90e452a9c5791dc220bf96af1951f237af816ae92dc9f9b8cec01381c09f90",
+      "scenario_sha256": "6b5f49d80ef44d3387fc32d1035d2feb9279ac27261a78f63314fde8634054b0",
+      "requested_url": "https://www.ilovepdf.com/edit-pdf",
+      "final_url": "https://www.ilovepdf.com/edit-pdf",
+      "page_title": "Edit PDF | Online PDF Editor and Form Filler",
+      "viewport": {
+        "width": 390,
+        "height": 844,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 7404,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "fdc4865371abbe64d90dea903ead73338cbc77086dc111eb2995fc30fd82aee8",
+          "bytes": 25431
+        },
+        "dom": {
+          "sha256": "0f70006cd4ffef88e39c3a5d8cc28c6986525b56b70b3317740fbf6293d44c66",
+          "bytes": 80273
+        },
+        "accessibility": {
+          "sha256": "2f4f30d785ad430097a8082a21148487721318a296adb6ba737e2112d7363271",
+          "bytes": 442
+        }
+      },
+      "network": {
+        "requests": 46,
+        "origins": 17,
+        "requests_per_origin": {
+          "https://www.ilovepdf.com": 16,
+          "https://www.googletagmanager.com": 1,
+          "https://securepubads.g.doubleclick.net": 3,
+          "https://evt.ilovepdf.com": 2,
+          "https://www.google-analytics.com": 2,
+          "https://cm.g.doubleclick.net": 5,
+          "https://static.criteo.net": 1,
+          "https://oa.openxcdn.net": 1,
+          "https://rtb.openx.net": 2,
+          "https://pagead2.googlesyndication.com": 1,
+          "https://gum.criteo.com": 1,
+          "https://google-bidout-d.openx.net": 1,
+          "https://match.adsrvr.org": 2,
+          "https://creativecdn.com": 2,
+          "https://c1.adform.net": 2,
+          "https://us-u.openx.net": 3,
+          "https://eu-u.openx.net": 1
+        }
+      }
+    },
+    {
+      "name": "phase2-play-listing",
+      "evidence_id": "ev_5f9fde93104fc747274e70647da799b05a2a041f867cd83db9b561066c9ebf30",
+      "scenario_sha256": "93c05096a0e1c8c47e0e19427b057a8438f0e537b4606d537a6604286298126a",
+      "requested_url": "https://play.google.com/store/apps/details?id=com.ilovepdf.www&hl=en",
+      "final_url": "https://play.google.com/store/apps/details?id=com.ilovepdf.www&hl=en",
+      "page_title": "iLovePDF: PDF Editor &amp; Scanner - Apps on Google Play",
+      "viewport": {
+        "width": 1440,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "duration_ms": 8147,
+      "completeness": "complete",
+      "artifacts": {
+        "screenshot": {
+          "sha256": "770b8ce405345ef26b0632044554c27eeef494c6bc2f92f8d48eaa984e86f259",
+          "bytes": 345445
+        },
+        "dom": {
+          "sha256": "3983fa674b02da1b32a2d700d236a28986594671e2cdff9bc825f78428d5b267",
+          "bytes": 1255293
+        },
+        "accessibility": {
+          "sha256": "b4ea539e504f64fcc4b4b2f9228966cb7b065e87eac1d5664b35f6a023a45607",
+          "bytes": 12902
+        }
+      },
+      "network": {
+        "requests": 81,
+        "origins": 9,
+        "requests_per_origin": {
+          "https://play.google.com": 4,
+          "https://www.gstatic.com": 19,
+          "https://fonts.gstatic.com": 5,
+          "https://play-lh.googleusercontent.com": 39,
+          "https://www.google-analytics.com": 3,
+          "https://www.googletagmanager.com": 2,
+          "https://www.google.com": 7,
+          "https://ssl.gstatic.com": 1,
+          "https://ad.doubleclick.net": 1
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,186 @@
+/* Design tokens. Light is the default; dark applies for `data-theme="dark"`, or for the system
+   preference unless the user explicitly chose light. Contrast targets WCAG AA for text. */
+
+:root {
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: clamp(1.9rem, 1.35rem + 2.2vw, 2.75rem);
+  --text-4xl: clamp(2.3rem, 1.4rem + 3.6vw, 3.9rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 26px;
+  --radius-pill: 999px;
+
+  --header-height: 4rem;
+  --container: 74rem;
+  --tap: 2.75rem; /* minimum touch target */
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  /* light theme */
+  color-scheme: light;
+  --bg: #f6f4ef;
+  --bg-elevated: #fbfaf7;
+  --surface: #ffffff;
+  --surface-2: #f0eee8;
+  --surface-3: #e7e4db;
+  --border: #dcd8cc;
+  --border-strong: #bdb8a8;
+  --text: #171a26;
+  --text-muted: #565b6c;
+  --text-subtle: #747a8b;
+
+  --primary: #3a3ad1;
+  --primary-hover: #2e2eb4;
+  --primary-soft: #e9e9fb;
+  --on-primary: #ffffff;
+  --accent: #0b7f72;
+  --accent-soft: #dff3ef;
+
+  --success: #0f7a4a;
+  --success-soft: #def3e8;
+  --warning: #8a5a00;
+  --warning-soft: #fbefd3;
+  --danger: #b42339;
+  --danger-soft: #fbe3e7;
+  --info: #1d5fb8;
+  --info-soft: #e1edfb;
+
+  --focus: #3a3ad1;
+  --overlay: rgba(23, 26, 38, 0.5);
+
+  --shadow-sm: 0 1px 2px rgba(23, 26, 38, 0.06), 0 1px 1px rgba(23, 26, 38, 0.04);
+  --shadow-md: 0 6px 18px rgba(23, 26, 38, 0.08), 0 2px 4px rgba(23, 26, 38, 0.05);
+  --shadow-lg: 0 18px 44px rgba(23, 26, 38, 0.14), 0 4px 10px rgba(23, 26, 38, 0.06);
+
+  /* category colours, used for icon tiles and accents */
+  --cat-organize: #5a4fd8;
+  --cat-optimize: #0b8a78;
+  --cat-to-pdf: #b86e00;
+  --cat-from-pdf: #c0368c;
+  --cat-edit: #1b6fd1;
+  --cat-security: #3e7d32;
+
+  --page-shadow: 0 2px 8px rgba(23, 26, 38, 0.18);
+  --checker-a: #e9e6dd;
+  --checker-b: #f4f2ec;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0e1016;
+  --bg-elevated: #131620;
+  --surface: #171a24;
+  --surface-2: #1e222e;
+  --surface-3: #282d3b;
+  --border: #2b3040;
+  --border-strong: #454c60;
+  --text: #eceef6;
+  --text-muted: #a6adc0;
+  --text-subtle: #8a91a5;
+
+  --primary: #9a9bff;
+  --primary-hover: #b3b4ff;
+  --primary-soft: #23244a;
+  --on-primary: #0e1016;
+  --accent: #4fd1bd;
+  --accent-soft: #11332e;
+
+  --success: #55d392;
+  --success-soft: #11301f;
+  --warning: #f0b955;
+  --warning-soft: #3a2b0a;
+  --danger: #ff8a9b;
+  --danger-soft: #3d1620;
+  --info: #7db4ff;
+  --info-soft: #12294a;
+
+  --focus: #b3b4ff;
+  --overlay: rgba(0, 0, 0, 0.65);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 22px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 22px 54px rgba(0, 0, 0, 0.6);
+
+  --cat-organize: #a29bff;
+  --cat-optimize: #4fd1bd;
+  --cat-to-pdf: #f3b24a;
+  --cat-from-pdf: #f58fcf;
+  --cat-edit: #6fb1ff;
+  --cat-security: #8bd47a;
+
+  --page-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+  --checker-a: #1c202c;
+  --checker-b: #222737;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0e1016;
+    --bg-elevated: #131620;
+    --surface: #171a24;
+    --surface-2: #1e222e;
+    --surface-3: #282d3b;
+    --border: #2b3040;
+    --border-strong: #454c60;
+    --text: #eceef6;
+    --text-muted: #a6adc0;
+    --text-subtle: #8a91a5;
+
+    --primary: #9a9bff;
+    --primary-hover: #b3b4ff;
+    --primary-soft: #23244a;
+    --on-primary: #0e1016;
+    --accent: #4fd1bd;
+    --accent-soft: #11332e;
+
+    --success: #55d392;
+    --success-soft: #11301f;
+    --warning: #f0b955;
+    --warning-soft: #3a2b0a;
+    --danger: #ff8a9b;
+    --danger-soft: #3d1620;
+    --info: #7db4ff;
+    --info-soft: #12294a;
+
+    --focus: #b3b4ff;
+    --overlay: rgba(0, 0, 0, 0.65);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --shadow-md: 0 8px 22px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 22px 54px rgba(0, 0, 0, 0.6);
+
+    --cat-organize: #a29bff;
+    --cat-optimize: #4fd1bd;
+    --cat-to-pdf: #f3b24a;
+    --cat-from-pdf: #f58fcf;
+    --cat-edit: #6fb1ff;
+    --cat-security: #8bd47a;
+
+    --page-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    --checker-a: #1c202c;
+    --checker-b: #222737;
+  }
+}

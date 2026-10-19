@@ -1,0 +1,37 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-server/
+*.tsbuildinfo
+coverage/
+
+# generated at install/build time (see scripts/copy-pdfjs-assets.mjs)
+public/pdfjs/
+
+# environment
+.env
+.env.*
+!.env.example
+
+# test output
+playwright-report/
+test-results/
+tests/.tmp/
+
+# raw REA investigation artifacts: third-party page captures kept locally only
+docs/evidence/raw/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
+
+tests/fixtures/*.log
+
+# Vercel project link (created by `vercel link`)
+.vercel/
