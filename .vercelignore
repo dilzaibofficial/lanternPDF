@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-server
+test-results
+playwright-report
+tests
+docs/evidence
+public/pdfjs
+.env
+.env.*
+!.env.example
+*.log
