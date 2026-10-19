@@ -59,32 +59,70 @@ export interface FontRequest {
 /** Characters that are never drawn, and the ones that are drawn as something else. */
 export function cleanChar(codePoint: number): number | null {
   if (codePoint === 0xad || codePoint === 0x200b || codePoint === 0x200c || codePoint === 0x200d || codePoint === 0xfeff || codePoint === 0x200e || codePoint === 0x200f) return null;
+  if (codePoint === 0x2011) return 0x2d; // non-breaking hyphen is drawn as a hyphen
   if (codePoint === 0xa0 || codePoint === 0x2007 || codePoint === 0x202f || codePoint === 0x2009 || codePoint === 0x2002 || codePoint === 0x2003) return 0x20;
   if (codePoint < 0x20 && codePoint !== 0x09) return null;
   return codePoint;
 }
 
-/** Symbol and Wingdings put their pictures in the private-use area; these are the few Word uses for bullets and ticks. */
-const SYMBOL_FONT_MAP: Record<number, number> = {
-  0xf0b7: 0x2022, // Symbol: round bullet
-  0xf0a7: 0x25aa, // Wingdings: small square
-  0xf0d8: 0x27a2, // Wingdings: arrowhead
-  0xf0fc: 0x2713, // Wingdings: check mark
-  0xf076: 0x2756, // Wingdings: diamond cross
-  0xf06c: 0x25cf, // Wingdings: black circle
-  0xf06e: 0x25a0, // Wingdings: black square
-  0xf071: 0x274f, // Wingdings: shadowed square
-  0xf0a8: 0x25fb, // Wingdings: white square
-  0xf0e0: 0x2794, // Wingdings: arrow
-  0xf0ab: 0x2756,
-  0xf09f: 0x2022,
-  0xf0b2: 0x25a1,
-  0xf0a1: 0x25cb,
-  0xf06f: 0x25a1,
+export type SymbolKind = "symbol" | "wingdings";
+
+/** The font a run names, if it is one of the picture fonts whose characters have to be mapped to real symbols. */
+export function symbolKindOf(fontName: string | undefined): SymbolKind | undefined {
+  const name = (fontName ?? "").toLowerCase();
+  if (name === "symbol") return "symbol";
+  if (name.startsWith("wingdings") || name === "webdings") return "wingdings";
+  return undefined;
+}
+
+// Word stores picture-font characters in the private-use area (U+F000 + the font's own code). These are the ones that
+// documents use for bullets, tick boxes and arrows, mapped to the Unicode symbols DejaVu Sans can draw.
+const WINGDINGS: Record<number, number> = {
+  0x6c: 0x25cf, // black circle
+  0x6d: 0x274d,
+  0x6e: 0x25a0, // black square
+  0x6f: 0x25a1, // white square
+  0x70: 0x25fb,
+  0x71: 0x2751, // shadowed square
+  0x72: 0x2752,
+  0x75: 0x25c6, // black diamond
+  0x76: 0x2756, // diamond cross
+  0x77: 0x2b25,
+  0x78: 0x2327,
+  0x9f: 0x2022, // bullet
+  0xa7: 0x25aa, // small black square
+  0xa8: 0x2610, // ballot box
+  0xd8: 0x27a2, // arrowhead
+  0xe0: 0x2794, // arrow
+  0xe8: 0x2794,
+  0xf0: 0x21e8, // white arrow
+  0xfb: 0x2718, // heavy ballot x
+  0xfc: 0x2713, // check mark
+  0xfd: 0x2612, // ballot box with x
+  0xfe: 0x2611, // ballot box with check
 };
 
-export function symbolToUnicode(codePoint: number): number {
-  return SYMBOL_FONT_MAP[codePoint] ?? codePoint;
+const SYMBOL: Record<number, number> = {
+  0xb7: 0x2022, // bullet
+  0xa7: 0x2663, // club
+  0xa8: 0x2666, // diamond
+  0xa9: 0x2665, // heart
+  0xaa: 0x2660, // spade
+  0xae: 0x2192, // right arrow
+  0xdb: 0x21d4,
+  0xde: 0x21d2,
+  0xd8: 0x00ac,
+  0xb0: 0x00b0,
+  0xb1: 0x00b1,
+  0xa3: 0x2264,
+  0xb3: 0x2265,
+};
+
+/** Maps a picture-font character to a real symbol; other characters are returned as they are. */
+export function symbolToUnicode(codePoint: number, kind: SymbolKind = "wingdings"): number {
+  if (codePoint < 0xf000 || codePoint > 0xf0ff) return codePoint;
+  const code = codePoint - 0xf000;
+  return (kind === "symbol" ? SYMBOL[code] : WINGDINGS[code]) ?? codePoint;
 }
 
 /** Fonts for one conversion. `prepare` loads what the document needs; after that, lookups are synchronous. */
@@ -128,7 +166,9 @@ export class FontLibrary {
     for (const { request, text } of requests) {
       const primary = await this.load(request.family, request.bold, request.italic);
       for (const char of text) {
-        const code = cleanChar(symbolToUnicode(char.codePointAt(0) as number));
+        const raw = char.codePointAt(0) as number;
+        // Picture-font characters (private use) are always drawn with the fallback font.
+        const code = cleanChar(raw >= 0xf000 && raw <= 0xf0ff ? 0xfffd : raw);
         if (code === null || code === 0x20 || code === 0x09) continue;
         if (!primary.has(code)) wantsFallback.add(variantOf(request.bold, request.italic));
       }

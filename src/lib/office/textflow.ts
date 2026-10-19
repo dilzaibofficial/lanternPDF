@@ -5,7 +5,7 @@
  * images); atoms are broken into lines that fit a width (with tab stops, hanging indents and justification); and lines
  * are drawn with the exact positions that were measured, so what is measured is what is drawn.
  */
-import { type FamilyId, type FontLibrary, cleanChar, symbolToUnicode } from "./fontLibrary";
+import { type FamilyId, type FontLibrary, type SymbolKind, cleanChar, symbolToUnicode } from "./fontLibrary";
 import type { EmbeddedFont, EmbeddedImage, LinkTarget, PageBuilder } from "./pdfBuilder";
 
 export type UnderlineStyle = "single" | "double" | "dotted" | "dash" | "wave" | "thick";
@@ -33,6 +33,7 @@ export interface TextStyle {
   link?: LinkRef;
   /** The text came from a symbol font (Symbol, Wingdings): its private-use characters are mapped to real symbols. */
   symbol?: boolean;
+  symbolKind?: SymbolKind;
 }
 
 export interface LinkRef extends LinkTarget {
@@ -177,6 +178,8 @@ export interface ParagraphShape {
 
 export class TextShaper {
   readonly warnings: { unsupported: Set<number> } = { unsupported: new Set() };
+  /** While laying out a header or footer for one page: the numbers its fields will show, so their widths are exact. */
+  fieldValues?: { page: number; pages: number };
 
   constructor(readonly fonts: FontLibrary) {}
 
@@ -216,7 +219,7 @@ export class TextShaper {
     const source = style.caps ? text.toUpperCase() : text;
     for (const original of source) {
       let code = original.codePointAt(0) as number;
-      if (style.symbol) code = symbolToUnicode(code);
+      if (style.symbol) code = symbolToUnicode(code, style.symbolKind);
       const cleaned = cleanChar(code);
       if (cleaned === null) continue;
       let size = baseSize;
@@ -337,7 +340,8 @@ export function buildAtoms(items: readonly InlineItem[], shaper: TextShaper): At
     } else {
       flush();
       const metrics = shaper.metrics(item.style);
-      atoms.push({ kind: "field", field: item.field, style: item.style, width: shaper.width("00", item.style), ascent: metrics.ascent, descent: metrics.descent });
+      const shown = shaper.fieldValues ? String(item.field === "page" ? shaper.fieldValues.page : shaper.fieldValues.pages) : "00";
+      atoms.push({ kind: "field", field: item.field, style: item.style, width: shaper.width(shown, item.style), ascent: metrics.ascent, descent: metrics.descent });
     }
   }
   flush();
@@ -437,7 +441,9 @@ export function breakLines(atoms: readonly Atom[], shape: ParagraphShape, shaper
       for (const held of pendingSpace) place(held.atom, held.atom.width);
       pendingSpace = [];
       const target = nextTabStop(open.x);
-      const width = Math.max(0, target.stop - open.x);
+      // Only a left tab takes its whole gap now; for right, centre and decimal tabs the gap depends on the text after the tab,
+      // which is worked out when the line is finished.
+      const width = target.align === "left" ? Math.max(0, target.stop - open.x) : 0;
       if (open.x + width > limit + EPSILON && open.atoms.length > 0) {
         // The next stop is beyond the right edge: the tab wraps like a word would.
         closeLine(false, false);
@@ -477,7 +483,8 @@ export function breakLines(atoms: readonly Atom[], shape: ParagraphShape, shaper
       place(atom, width);
     }
   }
-  closeLine(false, false);
+  // The last line of a paragraph is not stretched when the paragraph is justified.
+  closeLine(true, false);
   void markMetrics;
   return lines;
 }
@@ -562,6 +569,8 @@ function finishLine(open: OpenLine, shape: ParagraphShape, markMetrics: FontMetr
 export interface DrawContext {
   page: PageBuilder;
   shaper: TextShaper;
+  /** Page index of a named place in the document, for internal links. */
+  resolveAnchor?: (name: string) => number | undefined;
   /** Page numbers for fields. */
   pageNumber: number;
   pageCount: number;
@@ -586,8 +595,9 @@ export function drawLine(ctx: DrawContext, line: Line, x: number, top: number): 
     if (atom.kind === "break") return;
     if (atom.kind === "image") {
       const bottom = baseline - atom.rise;
-      page.image(atom.image, left, bottom - atom.height, atom.width, atom.height);
-      if (atom.link) page.link(left, bottom - atom.height, atom.width, atom.height, atom.link);
+      drawPicture(page, atom.image, left, bottom - atom.height, atom.width, atom.height, atom.crop);
+      const target = linkTarget(ctx, atom.link);
+      if (target) page.link(left, bottom - atom.height, atom.width, atom.height, target);
       return;
     }
     const style = atom.style;
@@ -613,8 +623,35 @@ export function drawLine(ctx: DrawContext, line: Line, x: number, top: number): 
       cursor += piece.width;
     }
     decorate(ctx, style, left, baseline - rise, atom.width);
-    if (style.link) page.link(left, baseline - rise - metrics.ascent, atom.width, metrics.ascent + metrics.descent, style.link);
+    const target = linkTarget(ctx, style.link);
+    if (target) page.link(left, baseline - rise - metrics.ascent, atom.width, metrics.ascent + metrics.descent, target);
   });
+}
+
+function linkTarget(ctx: DrawContext, link: LinkRef | undefined): LinkTarget | undefined {
+  if (!link) return undefined;
+  if (link.uri) return { uri: link.uri };
+  if (link.anchor) {
+    const page = ctx.resolveAnchor?.(link.anchor);
+    return page === undefined ? undefined : { page };
+  }
+  return link.page === undefined ? undefined : { page: link.page };
+}
+
+/** An image in a box; when it is cropped, the whole picture is drawn larger and cut off at the box. */
+export function drawPicture(page: PageBuilder, image: EmbeddedImage, x: number, y: number, width: number, height: number, crop?: { left: number; top: number; right: number; bottom: number }): void {
+  if (!crop || (crop.left === 0 && crop.top === 0 && crop.right === 0 && crop.bottom === 0)) {
+    page.image(image, x, y, width, height);
+    return;
+  }
+  const visibleWidth = Math.max(0.05, 1 - crop.left - crop.right);
+  const visibleHeight = Math.max(0.05, 1 - crop.top - crop.bottom);
+  const fullWidth = width / visibleWidth;
+  const fullHeight = height / visibleHeight;
+  page.save();
+  page.clipRect(x, y, width, height);
+  page.image(image, x - crop.left * fullWidth, y - crop.top * fullHeight, fullWidth, fullHeight);
+  page.restore();
 }
 
 function drawRun(ctx: DrawContext, style: TextStyle, x: number, baseline: number, text: string): void {
