@@ -433,8 +433,8 @@ export function breakLines(atoms: readonly Atom[], shape: ParagraphShape, shaper
       continue;
     }
     if (atom.kind === "space") {
+      // Spaces are only placed when more content follows them (trailing spaces hang in the margin), so they do not move x yet.
       pendingSpace.push({ atom, x: open.x });
-      open.x += atom.width;
       continue;
     }
     if (atom.kind === "tab") {
@@ -639,9 +639,9 @@ function linkTarget(ctx: DrawContext, link: LinkRef | undefined): LinkTarget | u
 }
 
 /** An image in a box; when it is cropped, the whole picture is drawn larger and cut off at the box. */
-export function drawPicture(page: PageBuilder, image: EmbeddedImage, x: number, y: number, width: number, height: number, crop?: { left: number; top: number; right: number; bottom: number }): void {
+export function drawPicture(page: PageBuilder, image: EmbeddedImage, x: number, y: number, width: number, height: number, crop?: { left: number; top: number; right: number; bottom: number }, opacity = 1): void {
   if (!crop || (crop.left === 0 && crop.top === 0 && crop.right === 0 && crop.bottom === 0)) {
-    page.image(image, x, y, width, height);
+    page.image(image, x, y, width, height, { opacity });
     return;
   }
   const visibleWidth = Math.max(0.05, 1 - crop.left - crop.right);
@@ -650,7 +650,7 @@ export function drawPicture(page: PageBuilder, image: EmbeddedImage, x: number, 
   const fullHeight = height / visibleHeight;
   page.save();
   page.clipRect(x, y, width, height);
-  page.image(image, x - crop.left * fullWidth, y - crop.top * fullHeight, fullWidth, fullHeight);
+  page.image(image, x - crop.left * fullWidth, y - crop.top * fullHeight, fullWidth, fullHeight, { opacity });
   page.restore();
 }
 

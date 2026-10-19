@@ -28,7 +28,7 @@ export async function convertOfficeFile(name: string, bytes: Uint8Array, options
     case "csv":
       return (await import("./xlsx/convert")).convertCsv(bytes, withName);
     case "pptx":
-      throw new AppError("UNSUPPORTED", "PowerPoint conversion is not available on this device yet.");
+      return (await import("./pptx/convert")).convertPptx(bytes, withName);
     default:
       throw new AppError("UNSUPPORTED", `“${name}” is an older or different kind of file that this device cannot convert. Save it as .docx, .xlsx or .pptx first, or use the LibreOffice mode on a server you run.`);
   }

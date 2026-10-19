@@ -81,7 +81,7 @@ npm start        # http://127.0.0.1:8787`}</code>
         <h2>Optional engines</h2>
         <ul>
           <li>
-            <strong>LibreOffice</strong> for Word, Excel and PowerPoint to PDF and the layout modes of PDF to Word and PowerPoint. Install it
+            <strong>LibreOffice</strong> as an optional second mode for Word, Excel and PowerPoint to PDF (it also opens older .doc, .xls and .ppt files) and for the layout modes of PDF to Word and PowerPoint. Install it
             with your package manager (for example <code>apt install libreoffice-writer libreoffice-calc libreoffice-impress</code>) or
             from libreoffice.org.
           </li>

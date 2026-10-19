@@ -183,6 +183,16 @@ export interface LinkTarget {
   page?: number;
 }
 
+export interface GradientStop {
+  /** 0 at the start of the gradient, 1 at the end. */
+  position: number;
+  color: string;
+}
+
+export type GradientDef =
+  | { kind: "linear"; stops: GradientStop[]; x0: number; y0: number; x1: number; y1: number }
+  | { kind: "radial"; stops: GradientStop[]; cx: number; cy: number; r0: number; r1: number };
+
 export interface StrokeStyle {
   color: string;
   width: number;
@@ -196,6 +206,7 @@ export class PageBuilder {
   readonly fontNames = new Map<EmbeddedFont, string>();
   readonly imageNames = new Map<PDFRef, string>();
   readonly stateNames = new Map<number, string>();
+  readonly shadings = new Map<string, GradientDef>();
   readonly links: { x: number; y: number; width: number; height: number; target: LinkTarget }[] = [];
 
   constructor(
@@ -224,6 +235,11 @@ export class PageBuilder {
     this.ops.push(`q ${n(scale)} 0 0 ${n(scale)} ${n(offsetX)} ${n(translateY)} cm`);
   }
 
+  /** The height used to turn y measured downwards into PDF's upwards y. */
+  viewHeightValue(): number {
+    return this.viewHeight;
+  }
+
   endView(): void {
     if (!this.view) return;
     this.ops.push("Q");
@@ -242,6 +258,11 @@ export class PageBuilder {
   /** Everything drawn until the matching `restore()` is cut off outside this box. */
   clipRect(x: number, y: number, width: number, height: number): void {
     this.ops.push(`${n(x)} ${n(this.y(y + height))} ${n(width)} ${n(height)} re W n`);
+  }
+
+  /** Everything drawn until the matching `restore()` is cut off outside this path (built with `pathOps`). */
+  clipPath(commands: string, evenOdd = false): void {
+    this.ops.push(`${commands} ${evenOdd ? "W*" : "W"} n`);
   }
 
   private alpha(opacity: number): string | null {
@@ -273,6 +294,35 @@ export class PageBuilder {
     const cap = style.cap === "round" ? 1 : style.cap === "square" ? 2 : 0;
     const dash = style.dash && style.dash.length > 0 ? `[${style.dash.map(n).join(" ")}] 0 d` : "";
     return `${strokeOp(style.color)} ${n(Math.max(0.1, style.width))} w ${cap} J ${dash}`;
+  }
+
+  /** Concatenates a transformation matrix (in PDF's own coordinates) for everything until the matching `restore()`. */
+  matrix(a: number, b: number, c: number, d: number, e: number, f: number): void {
+    this.ops.push(`${n(a)} ${n(b)} ${n(c)} ${n(d)} ${n(e)} ${n(f)} cm`);
+  }
+
+  /** Turns everything until the matching `restore()` clockwise by `degrees` about (cx, cy), optionally mirroring it first. */
+  rotateAbout(cx: number, cy: number, degrees: number, flipH = false, flipV = false): void {
+    const px = cx;
+    const py = this.y(cy);
+    if (flipH) this.matrix(-1, 0, 0, 1, 2 * px, 0);
+    if (flipV) this.matrix(1, 0, 0, -1, 0, 2 * py);
+    if (degrees === 0) return;
+    // A clockwise turn on the page is a counter-clockwise turn in PDF's y-up space with the opposite sign.
+    const theta = (degrees * Math.PI) / 180;
+    const cos = Math.cos(theta);
+    const sin = Math.sin(theta);
+    const turn = flipH !== flipV ? -1 : 1;
+    const c = cos;
+    const s = sin * turn;
+    this.matrix(c, -s, s, c, px - (c * px + s * py), py - (-s * px + c * py));
+  }
+
+  /** Fills a path with a gradient. The path is clipped to, so nothing outside it is painted. */
+  gradient(path: string, gradient: GradientDef): void {
+    const name = `Sh${this.shadings.size + 1}`;
+    this.shadings.set(name, gradient);
+    this.ops.push(`q ${path} W n /${name} sh Q`);
   }
 
   /** Raw path operators in this page's own coordinates (y measured down); see `pathOps` for building them. */
@@ -343,6 +393,37 @@ export class PageBuilder {
   }
 }
 
+function colorArray(color: string): number[] {
+  return rgb(color);
+}
+
+/** The PDF shading (and its colour function) for a gradient, in the page's own up-pointing coordinates. */
+function shadingObject(context: PDFDocument["context"], gradient: GradientDef, viewHeight: number) {
+  const stops = [...gradient.stops].sort((a, b) => a.position - b.position);
+  const first = stops[0] ?? { position: 0, color: "#000000" };
+  const last = stops[stops.length - 1] ?? first;
+  const pairs = [];
+  for (let i = 0; i + 1 < stops.length; i += 1) {
+    const from = stops[i] as GradientStop;
+    const to = stops[i + 1] as GradientStop;
+    pairs.push(context.obj({ FunctionType: 2, Domain: [0, 1], C0: colorArray(from.color), C1: colorArray(to.color), N: 1 }));
+  }
+  const fn =
+    stops.length <= 2
+      ? context.obj({ FunctionType: 2, Domain: [0, 1], C0: colorArray(first.color), C1: colorArray(last.color), N: 1 })
+      : context.obj({
+          FunctionType: 3,
+          Domain: [0, 1],
+          Functions: pairs,
+          Bounds: stops.slice(1, -1).map((stop) => Math.min(Math.max(stop.position, 0), 1)),
+          Encode: pairs.flatMap(() => [0, 1]),
+        });
+  if (gradient.kind === "linear") {
+    return context.obj({ ShadingType: 2, ColorSpace: "DeviceRGB", Coords: [gradient.x0, viewHeight - gradient.y0, gradient.x1, viewHeight - gradient.y1], Function: fn, Extend: [true, true] });
+  }
+  return context.obj({ ShadingType: 3, ColorSpace: "DeviceRGB", Coords: [gradient.cx, viewHeight - gradient.cy, gradient.r0, gradient.cx, viewHeight - gradient.cy, gradient.r1], Function: fn, Extend: [true, true] });
+}
+
 export interface DocumentInfo {
   title?: string;
   author?: string;
@@ -397,7 +478,9 @@ export class PdfBuilder {
       for (const [ref, name] of page.imageNames) xObjects.set(PDFName.of(name), ref);
       const states = context.obj({});
       for (const [key, name] of page.stateNames) states.set(PDFName.of(name), context.obj({ Type: "ExtGState", ca: key / 1000, CA: key / 1000 }));
-      pdfPage.node.set(PDFName.of("Resources"), context.obj({ Font: fontDict, XObject: xObjects, ExtGState: states, ProcSet: ["PDF", "Text", "ImageB", "ImageC", "ImageI"] }));
+      const shadings = context.obj({});
+      for (const [name, gradient] of page.shadings) shadings.set(PDFName.of(name), context.register(shadingObject(context, gradient, page.viewHeightValue())));
+      pdfPage.node.set(PDFName.of("Resources"), context.obj({ Font: fontDict, XObject: xObjects, ExtGState: states, Shading: shadings, ProcSet: ["PDF", "Text", "ImageB", "ImageC", "ImageI"] }));
       pdfPage.node.set(PDFName.of("Contents"), context.register(context.flateStream(new TextEncoder().encode(page.ops.join("\n")))));
 
       if (page.links.length > 0) {

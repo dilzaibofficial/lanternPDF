@@ -1,5 +1,5 @@
 import type { OfficePackage } from "./package";
-import { kid } from "./xml";
+import { type XNode, elements, kid } from "./xml";
 
 export interface Theme {
   /** Colour scheme entries by name: dk1, lt1, dk2, lt2, accent1..6, hlink, folHlink. Hex like "#1f2937". */
@@ -7,24 +7,36 @@ export interface Theme {
   /** Heading and body fonts (the theme's Latin typefaces). */
   major?: string;
   minor?: string;
+  /** The theme's numbered fill and line styles, which shapes refer to by number (fillRef, lnRef). */
+  fillStyles: XNode[];
+  lineStyles: XNode[];
+  backgroundFillStyles: XNode[];
 }
 
 /** Reads the document theme (colours and fonts) from the first theme part under `prefix`, e.g. "word/theme/". */
 export function readTheme(pack: OfficePackage, prefix: string): Theme {
-  const theme: Theme = { colors: {} };
-  const part = pack.list(prefix).find((name) => name.endsWith(".xml"));
+  return readThemePart(pack, pack.list(prefix).find((name) => name.endsWith(".xml")));
+}
+
+/** Reads one theme part by its exact name. A missing part gives an empty theme. */
+export function readThemePart(pack: OfficePackage, part: string | undefined): Theme {
+  const theme: Theme = { colors: {}, fillStyles: [], lineStyles: [], backgroundFillStyles: [] };
   const root = part ? pack.xml(part) : undefined;
-  const elements = kid(root, "a:themeElements");
-  const scheme = kid(elements, "a:clrScheme");
+  const themeElements = kid(root, "a:themeElements");
+  const scheme = kid(themeElements, "a:clrScheme");
   for (const child of scheme?.children ?? []) {
     if (typeof child === "string") continue;
     const key = child.name.replace("a:", "");
     const value = kid(child, "a:srgbClr")?.attrs.val ?? kid(child, "a:sysClr")?.attrs.lastClr;
     if (value && /^[0-9a-fA-F]{6}$/.test(value)) theme.colors[key] = `#${value.toLowerCase()}`;
   }
-  const fonts = kid(elements, "a:fontScheme");
+  const fonts = kid(themeElements, "a:fontScheme");
   theme.major = kid(kid(fonts, "a:majorFont"), "a:latin")?.attrs.typeface || undefined;
   theme.minor = kid(kid(fonts, "a:minorFont"), "a:latin")?.attrs.typeface || undefined;
+  const formats = kid(themeElements, "a:fmtScheme");
+  theme.fillStyles = elements(kid(formats, "a:fillStyleLst"));
+  theme.lineStyles = elements(kid(formats, "a:lnStyleLst"));
+  theme.backgroundFillStyles = elements(kid(formats, "a:bgFillStyleLst"));
   return theme;
 }
 

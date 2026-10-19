@@ -95,7 +95,7 @@ function parseSide(node: XNode | undefined, theme: Theme): BorderSide | undefine
 
 export class XlsxReader {
   private readonly media = new Map<string, { bytes: Uint8Array }>();
-  private theme: Theme = { colors: {} };
+  private theme: Theme = { colors: {}, fillStyles: [], lineStyles: [], backgroundFillStyles: [] };
 
   constructor(
     private readonly pack: OfficePackage,

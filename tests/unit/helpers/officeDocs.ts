@@ -1,5 +1,6 @@
 import { createCanvas } from "@napi-rs/canvas";
 import ExcelJS from "exceljs";
+import PptxGenJS from "pptxgenjs";
 import { AlignmentType, Document, ExternalHyperlink, Footer, Header, HeadingLevel, ImageRun, LevelFormat, Packer, PageNumber, Paragraph, Table, TableCell, TableRow, TextRun, WidthType } from "docx";
 
 export function pngBytes(width = 120, height = 60): Buffer {
@@ -63,4 +64,48 @@ export async function makeWorkbook(): Promise<Uint8Array> {
   const second = wb.addWorksheet("Second");
   second.addRow(["Second sheet text"]);
   return new Uint8Array(await wb.xlsx.writeBuffer());
+}
+
+/**
+ * A presentation made with PptxGenJS: a slide master with a coloured bar and title and body placeholders that the first
+ * slide fills in (so position and size are inherited), bullets, a shape, a table, a link, a picture and a hidden slide.
+ */
+export async function makeDeck(): Promise<Uint8Array> {
+  const pptx = new PptxGenJS();
+  pptx.layout = "LAYOUT_16x9";
+  pptx.title = "Quarterly review";
+  pptx.author = "LanternPDF tests";
+  pptx.defineSlideMaster({
+    title: "BRANDED",
+    background: { color: "F3F4F6" },
+    objects: [
+      { rect: { x: 0, y: 5.2, w: "100%", h: 0.425, fill: { color: "1F4E79" } } },
+      { placeholder: { options: { name: "heading", type: "title", x: 0.5, y: 0.3, w: 9, h: 0.9, fontSize: 30, bold: true, color: "1F4E79" }, text: "" } },
+      { placeholder: { options: { name: "body", type: "body", x: 0.5, y: 1.4, w: 5, h: 2.2, fontSize: 18 }, text: "" } },
+    ],
+  });
+  const first = pptx.addSlide({ masterName: "BRANDED" });
+  first.addText("Quarterly review", { placeholder: "heading" });
+  first.addText(
+    [
+      { text: "Revenue grew", options: { bullet: true, breakLine: true } },
+      { text: "Costs fell", options: { bullet: true } },
+    ],
+    { placeholder: "body" },
+  );
+  first.addShape(pptx.ShapeType.ellipse, { x: 6.5, y: 1.5, w: 2, h: 2, fill: { color: "3A3AD1" } });
+  first.addTable(
+    [
+      [{ text: "Region", options: { bold: true } }, { text: "Total", options: { bold: true } }],
+      [{ text: "North" }, { text: "1,200" }],
+    ],
+    { x: 0.5, y: 3.8, w: 5, colW: [2.5, 2.5], fontSize: 14 },
+  );
+  const second = pptx.addSlide();
+  second.addText([{ text: "Second slide with a link", options: { hyperlink: { url: "https://lanternpdf.com" } } }], { x: 1, y: 1, w: 8, h: 1, fontSize: 24 });
+  second.addImage({ data: `data:image/png;base64,${pngBytes(200, 100).toString("base64")}`, x: 1, y: 2.5, w: 2, h: 1 });
+  const hidden = pptx.addSlide();
+  hidden.hidden = true;
+  hidden.addText("This slide is hidden", { x: 1, y: 1, w: 8, h: 1 });
+  return new Uint8Array((await pptx.write({ outputType: "uint8array" })) as Uint8Array);
 }

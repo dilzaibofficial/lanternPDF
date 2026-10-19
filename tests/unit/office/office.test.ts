@@ -5,7 +5,9 @@ import { convertOfficeFile, officeKindOf } from "../../../src/lib/office";
 import { parseXml } from "../../../src/lib/office/xml";
 import { parseCsv } from "../../../src/lib/office/xlsx/convert";
 import { renderPdfPage } from "../helpers/images";
-import { makeWordDocument, makeWorkbook } from "../helpers/officeDocs";
+import { type ColorContext, parseColor } from "../../../src/lib/office/pptx/dml";
+import { formatNumber } from "../../../src/lib/office/pptx/text";
+import { makeDeck, makeWordDocument, makeWorkbook } from "../helpers/officeDocs";
 import { pageTexts } from "../helpers/pdf";
 
 async function annotationsOf(bytes: Uint8Array): Promise<{ subtype: string; url?: string }[]> {
@@ -56,6 +58,7 @@ describe("choosing a converter", () => {
     expect(officeKindOf("Report.DOCX")).toBe("docx");
     expect(officeKindOf("books.xlsx")).toBe("xlsx");
     expect(officeKindOf("data.csv")).toBe("csv");
+    expect(officeKindOf("Deck.PPTX")).toBe("pptx");
     expect(officeKindOf("old.doc")).toBeNull();
   });
 });
@@ -129,5 +132,96 @@ describe("Excel and CSV to PDF", () => {
     expect(parseCsv('a;b\n1;"x;y"\n')).toEqual([["a", "b"], ["1", "x;y"]]);
     expect(parseCsv("a\tb\n1\t2")).toEqual([["a", "b"], ["1", "2"]]);
     expect(parseCsv('a,b\r\n"line\nbreak",2')).toEqual([["a", "b"], ["line\nbreak", "2"]]);
+  });
+});
+
+describe("PowerPoint to PDF", () => {
+  it("makes one page per visible slide at the slide size, and keeps the text, bullets, table, link and picture", async () => {
+    const result = await convertOfficeFile("review.pptx", await makeDeck());
+    expect(result.pageCount).toBe(2);
+    expect(result.warnings).toEqual(["1 hidden slide was not included."]);
+    const [first, second] = await pageTexts(result.bytes);
+    expect(first).toContain("Quarterly review");
+    expect(first).toContain("Revenue grew");
+    expect(first).toContain("Costs fell");
+    expect(first).toContain("Region");
+    expect(first).toContain("1,200");
+    expect(second).toContain("Second slide with a link");
+    expect(second).not.toContain("hidden");
+    expect((await annotationsOf(result.bytes)).some((a) => a.subtype === "Link" && a.url === "https://lanternpdf.com/")).toBe(true);
+    expect(await metadataOf(result.bytes)).toMatchObject({ Title: "Quarterly review", Author: "LanternPDF tests" });
+  });
+
+  it("applies the layout: the master's background, bar and placeholder positions reach the slide", async () => {
+    const result = await convertOfficeFile("review.pptx", await makeDeck());
+    const rendered = await renderPdfPage(result.bytes, 1, 1);
+    // The 16:9 slide is 720 x 405 points.
+    expect(rendered.width).toBe(720);
+    expect(rendered.height).toBe(405);
+    const near = (pixel: number[], expected: number[]) => pixel.slice(0, 3).every((value, index) => Math.abs(value - (expected[index] ?? 0)) < 8);
+    expect(near(rendered.at(360, 395), [0x1f, 0x4e, 0x79])).toBe(true); // the master's bar at the bottom
+    expect(near(rendered.at(5, 5), [0xf3, 0xf4, 0xf6])).toBe(true); // the master's background
+    expect(near(rendered.at(550, 160), [0x3a, 0x3a, 0xd1])).toBe(true); // the ellipse on the slide
+    // The title has no position of its own: it sits where the layout's placeholder is (near the top), not at a default place.
+    const task = pdfjs.getDocument({ data: new Uint8Array(result.bytes), verbosity: 0 });
+    try {
+      const page = await (await task.promise).getPage(1);
+      const title = (await page.getTextContent()).items.find((item) => "str" in item && item.str.includes("Quarterly"));
+      expect(title && "transform" in title ? title.transform[5] : 0).toBeGreaterThan(405 - 90);
+    } finally {
+      await task.destroy();
+    }
+  });
+
+  it("reads colours the way PowerPoint does: tints are mixed in linear light", () => {
+    const ctx: ColorContext = { theme: { colors: { dk1: "#000000", lt1: "#ffffff", accent1: "#4f81bd" }, fillStyles: [], lineStyles: [], backgroundFillStyles: [] }, colorMap: { tx1: "dk1", bg1: "lt1", accent1: "accent1" } };
+    const color = (xml: string) => parseColor(parseXml(`<a:solidFill xmlns:a="x">${xml}</a:solidFill>`), ctx)?.color;
+    // Black with a 75% tint is the familiar mid grey of subtitles, not a dark one.
+    expect(color(`<a:schemeClr val="tx1"><a:tint val="75000"/></a:schemeClr>`)).toBe("#898989");
+    expect(color(`<a:srgbClr val="92D050"/>`)).toBe("#92d050");
+    expect(color(`<a:schemeClr val="bg1"><a:lumMod val="50000"/></a:schemeClr>`)).toBe("#808080");
+    expect(parseColor(parseXml(`<a:solidFill xmlns:a="x"><a:srgbClr val="FF0000"><a:alpha val="40000"/></a:srgbClr></a:solidFill>`), ctx)?.alpha).toBeCloseTo(0.4);
+  });
+
+  it("numbers automatic lists in the formats PowerPoint offers", () => {
+    expect(formatNumber("arabicPeriod", 3)).toBe("3.");
+    expect(formatNumber("arabicParenR", 12)).toBe("12)");
+    expect(formatNumber("romanLcPeriod", 4)).toBe("iv.");
+    expect(formatNumber("romanUcParenR", 9)).toBe("IX)");
+    expect(formatNumber("alphaLcParenR", 2)).toBe("b)");
+    expect(formatNumber("alphaUcPeriod", 27)).toBe("AA.");
+  });
+
+  it("says why a presentation cannot be opened", async () => {
+    await expect(convertOfficeFile("broken.pptx", new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]))).rejects.toMatchObject({ code: "INVALID_FILE" });
+    const old = new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0, 0, 0]);
+    await expect(convertOfficeFile("old.pptx", old)).rejects.toMatchObject({ code: "UNSUPPORTED", message: expect.stringMatching(/older binary/) });
+  });
+});
+
+describe("line breaking", () => {
+  it("fills a line up to the right edge instead of wrapping a word early", async () => {
+    // "class Foo{" is 72 points wide in a 12 point monospaced font and the text area is 75.6 points wide: it must stay on one line.
+    const { FontLibrary } = await import("../../../src/lib/office/fontLibrary");
+    const { TextShaper, breakLines, buildAtoms } = await import("../../../src/lib/office/textflow");
+    const fonts = new FontLibrary();
+    await fonts.prepare([{ request: { family: "cousine", bold: false, italic: false }, text: "class Foo{alphbetgmdzkp" }]);
+    const shaper = new TextShaper(fonts);
+    const style = { family: "cousine" as const, bold: false, italic: false, size: 12, color: "#000000" };
+    const atoms = buildAtoms(
+      [
+        { kind: "text", text: "class ", style },
+        { kind: "text", text: "Foo{", style },
+      ],
+      shaper,
+    );
+    const lines = breakLines(atoms, { width: 75.6, firstLineOffset: 0, leftIndent: 0, align: "left", tabs: [], defaultTabStop: 72, lineRule: "auto", lineValue: 1, markStyle: style }, shaper);
+    expect(lines).toHaveLength(1);
+    // A longer text does wrap, and every line is filled to within one short word of the edge.
+    const long = buildAtoms([{ kind: "text", text: "alpha beta gamma delta epsilon zeta eta theta iota kappa lambda mu nu xi omicron pi rho sigma", style }], shaper);
+    const wrapped = breakLines(long, { width: 300, firstLineOffset: 0, leftIndent: 0, align: "left", tabs: [], defaultTabStop: 72, lineRule: "auto", lineValue: 1, markStyle: style }, shaper);
+    expect(wrapped.length).toBeGreaterThan(1);
+    for (const line of wrapped.slice(0, -1)) expect(line.width).toBeGreaterThan(300 - 9 * 7.3);
+    for (const line of wrapped) expect(line.width).toBeLessThanOrEqual(300.01);
   });
 });

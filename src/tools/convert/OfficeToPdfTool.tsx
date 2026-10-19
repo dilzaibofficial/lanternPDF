@@ -41,8 +41,8 @@ const DEVICE_EXTENSIONS: Record<Kind, readonly string[]> = {
   pptx: [".pptx", ".pptm"],
 };
 
-/** Which kinds can be converted on this device. PowerPoint still needs the server. */
-const DEVICE_READY: Record<Kind, boolean> = { docx: true, xlsx: true, pptx: false };
+/** Which kinds can be converted on this device. */
+const DEVICE_READY: Record<Kind, boolean> = { docx: true, xlsx: true, pptx: true };
 
 const KIND_NAME: Record<Kind, string> = { docx: "Word", xlsx: "Excel", pptx: "PowerPoint" };
 
@@ -117,7 +117,7 @@ export default function OfficeToPdfTool({ tool }: ToolProps) {
     files.clear();
   };
 
-  // PowerPoint, until it can be converted here, and the server mode both need the server.
+  // The server mode needs the server; say so before a file is chosen.
   if (!onDevice && available !== true && files.items.length === 0 && mode === "server") {
     return <ServerNotice engine="libreoffice" what={`${tool.name} conversion`} />;
   }

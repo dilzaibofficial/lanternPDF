@@ -2,7 +2,7 @@ import type { Page } from "@playwright/test";
 import { renderPdfPage } from "../unit/helpers/images";
 import { pageTexts } from "../unit/helpers/pdf";
 import { csv, docx, docxParagraphs, makeReport, makeScan, makeTable, nonEmpty, odt, sheetsOf, textOf, unzip, withMarker } from "../unit/helpers/documents";
-import { makeWordDocument, makeWorkbook } from "../unit/helpers/officeDocs";
+import { makeDeck, makeWordDocument, makeWorkbook } from "../unit/helpers/officeDocs";
 import { addFiles, expect, test } from "./fixtures";
 import { downloadResult } from "./helpers";
 
@@ -289,22 +289,23 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
     await expect(page.getByTestId("file-row")).toHaveCount(0);
   });
 
-  test("explains what is needed when there is no server, and offers no way to upload", async ({ page }) => {
+  test("PowerPoint still converts on this device when there is no server, and the server mode says why it is off", async ({ page }) => {
     await page.route("**/api/capabilities", (route) => route.abort());
     await page.goto("/tools/powerpoint-to-pdf");
-    await expect(page.getByTestId("server-notice")).toContainText("This needs the optional server");
-    await expect(page.getByRole("link", { name: "How to run the server" })).toBeVisible();
-    await expect(page.getByTestId("file-input")).toHaveCount(0);
+    await expect(page.getByTestId("mode-device")).toBeChecked();
+    await expect(page.getByTestId("mode-server")).toBeDisabled();
+    await expect(page.getByText("Not available: this site is not connected to a conversion server.")).toBeVisible();
+    await expect(page.getByTestId("file-input")).toHaveCount(1);
   });
 
-  test("explains when the server has no LibreOffice, with the server's own reason", async ({ page }) => {
+  test("says the server has no LibreOffice, and still offers the on-device mode", async ({ page }) => {
     await page.route("**/api/capabilities", (route) =>
-      route.fulfill({ json: { version: "1.0.0", limits: { maxUploadBytes: 2097152 }, engines: { libreoffice: { available: false, reason: "SOFFICE_PATH points to “/opt/nowhere”, which does not exist or cannot be run." }, ghostscript: { available: false } } } }),
+      route.fulfill({ json: { version: "1.0.0", limits: { maxUploadBytes: 2097152 }, engines: { libreoffice: { available: false, reason: "SOFFICE_PATH points to nowhere." }, ghostscript: { available: false } } } }),
     );
     await page.goto("/tools/powerpoint-to-pdf");
-    await expect(page.getByTestId("server-notice")).toContainText("LibreOffice is not installed on the server");
-    await expect(page.getByTestId("server-notice")).toContainText("SOFFICE_PATH points to");
-    await expect(page.getByTestId("file-input")).toHaveCount(0);
+    await expect(page.getByTestId("mode-server")).toBeDisabled();
+    await expect(page.getByText("Not available: LibreOffice is not installed on the server.")).toBeVisible();
+    await expect(page.getByTestId("mode-device")).toBeChecked();
   });
 
   test("the self-hosting page the notices point to exists", async ({ page }) => {
@@ -366,6 +367,28 @@ test.describe("Word, Excel and PowerPoint to PDF", () => {
     const [text] = await pageTexts((await downloadResult(page)).bytes);
     expect(text).toContain("widget");
     expect(text).toContain("10.5");
+  });
+
+  test("PowerPoint to PDF converts a deck on this device, one page per visible slide, with no upload", async ({ page }) => {
+    const requests: string[] = [];
+    page.on("request", (request) => {
+      if (request.url().includes("/api/")) requests.push(request.method() + " " + request.url());
+    });
+    await page.route("**/api/capabilities", (route) => route.abort());
+    await page.goto("/tools/powerpoint-to-pdf");
+    await addFiles(page, [{ name: "Quarterly review.pptx", bytes: await makeDeck(), mimeType: "application/vnd.openxmlformats-officedocument.presentationml.presentation" }]);
+    await page.getByTestId("convert-button").click();
+    await expect(page.getByRole("heading", { name: "Your PDF is ready" })).toBeVisible();
+    await expect(page.getByText("Converted on this device. Your file never left it.")).toBeVisible();
+    await expect(page.getByTestId("conversion-notes")).toBeVisible(); // the hidden slide is reported, not silently dropped
+    const file = await downloadResult(page);
+    expect(file.name).toBe("Quarterly review.pdf");
+    const texts = await pageTexts(file.bytes);
+    expect(texts).toHaveLength(2);
+    expect(texts[0]).toContain("Quarterly review");
+    expect(texts[0]).toContain("Revenue grew");
+    expect(texts[1]).toContain("Second slide with a link");
+    expect(requests.filter((entry) => entry.startsWith("POST"))).toEqual([]);
   });
 });
 

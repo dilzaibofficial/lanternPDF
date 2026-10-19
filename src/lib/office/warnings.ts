@@ -26,7 +26,9 @@ export type WarningKind =
   | "vertical-text"
   | "table-style"
   | "wordart"
-  | "frames";
+  | "frames"
+  | "effects"
+  | "slide-hidden";
 
 const TEXT: Record<WarningKind, (count: number, detail?: string) => string> = {
   textbox: (n) => `${n} text ${n === 1 ? "box was" : "boxes were"} left out.`,
@@ -52,6 +54,8 @@ const TEXT: Record<WarningKind, (count: number, detail?: string) => string> = {
   "vertical-text": () => "Vertical or rotated text is shown horizontally.",
   "table-style": () => "Some table style details may differ from the original.",
   wordart: (n) => `${n} WordArt ${n === 1 ? "item was" : "items were"} left out.`,
+  effects: (n) => `${n} ${n === 1 ? "shape has" : "shapes have"} shadows, glows or other effects that are not drawn.`,
+  "slide-hidden": (n) => `${n} hidden ${n === 1 ? "slide was" : "slides were"} not included.`,
   frames: (n) => `${n} text ${n === 1 ? "frame was" : "frames were"} placed in the normal text flow.`,
 };
 
