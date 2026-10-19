@@ -1,0 +1,90 @@
+{
+  "source": "Verisign RDAP, the .com registry operator: https://rdap.verisign.com/com/v1/domain/<name>.com",
+  "ran": "2026-10-19T01:20:35.600Z",
+  "meaning": "unregistered = the registry has no record (HTTP 404). Not a purchase guarantee; re-check right before buying.",
+  "totals": {
+    "checked": 11,
+    "registered": 0,
+    "unregistered": 11,
+    "error": 0
+  },
+  "results": [
+    {
+      "name": "lanternpdf",
+      "domain": "lanternpdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:28.586Z"
+    },
+    {
+      "name": "compasspdf",
+      "domain": "compasspdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:29.245Z"
+    },
+    {
+      "name": "meadowpdf",
+      "domain": "meadowpdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:29.902Z"
+    },
+    {
+      "name": "quiltpdf",
+      "domain": "quiltpdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:30.573Z"
+    },
+    {
+      "name": "trailpdf",
+      "domain": "trailpdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:31.266Z"
+    },
+    {
+      "name": "stackpdf",
+      "domain": "stackpdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:31.930Z"
+    },
+    {
+      "name": "tealpdf",
+      "domain": "tealpdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:32.609Z"
+    },
+    {
+      "name": "ridgepdf",
+      "domain": "ridgepdf.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:33.273Z"
+    },
+    {
+      "name": "sheaftools",
+      "domain": "sheaftools.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:33.938Z"
+    },
+    {
+      "name": "sheafdocs",
+      "domain": "sheafdocs.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:34.643Z"
+    },
+    {
+      "name": "sheafpages",
+      "domain": "sheafpages.com",
+      "result": "unregistered",
+      "http": 404,
+      "checked": "2026-10-19T01:20:35.317Z"
+    }
+  ]
+}

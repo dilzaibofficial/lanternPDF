@@ -1,0 +1,76 @@
+{
+  "source": "each registry's own RDAP server, from IANA's list (net: Verisign, org: Public Interest Registry, app: Google Registry). .io and .co are not in IANA's list and were not checked.",
+  "ran": "2026-10-19T01:19:53.759Z",
+  "results": [
+    {
+      "name": "lanternpdf",
+      "checked": "2026-10-19T01:19:31.116Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "compasspdf",
+      "checked": "2026-10-19T01:19:33.667Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "meadowpdf",
+      "checked": "2026-10-19T01:19:35.725Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "tealpdf",
+      "checked": "2026-10-19T01:19:37.733Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "quiltpdf",
+      "checked": "2026-10-19T01:19:40.211Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "trailpdf",
+      "checked": "2026-10-19T01:19:42.275Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "ridgepdf",
+      "checked": "2026-10-19T01:19:44.333Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "stackpdf",
+      "checked": "2026-10-19T01:19:46.372Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "registered"
+    },
+    {
+      "name": "sheaftools",
+      "checked": "2026-10-19T01:19:48.426Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    },
+    {
+      "name": "sheafdocs",
+      "checked": "2026-10-19T01:19:51.273Z",
+      "net": "unregistered",
+      "org": "unregistered",
+      "app": "unregistered"
+    }
+  ]
+}
